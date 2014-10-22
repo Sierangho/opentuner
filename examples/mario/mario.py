@@ -127,6 +127,62 @@ class Representation(object):
     """Unpack this representation into button-press sets (L, R, D, B, A)."""
     pass
 
+class RepresentationMapper(Representation):
+  """Class which can generate new mapped Respresentations when given a 
+  manipulator"""
+
+  #TODO - make this into the "real" representation class. 
+  #TODO - Actually hook things in so search driver uses mappings correctly
+  def __init__(self, manipulator, to_base_mapping = {}, from_base_mapping = {}):
+    self.manipulator = manipulator
+    self.to_base_mapping = to_base_mapping
+    self.from_base_mapping = from_base_mapping
+
+
+  # TODO - Mapping methods primarily to generate functions
+
+  # TODO -remove when boolean arrays are a real thing and people use them
+  @classmethod
+  def getBooleansToBooleanArrayFunction(cls, boolean_names, param_name):
+    mappings = {}
+    for i in range(len(boolean_names)):
+      mappings[boolean_names[i]] = lambda cfg: cfg[param_name][i]
+    return param_name, mappings
+
+  def manipulator(self):
+    return self.manipulator
+
+  def toBaseRepresentation(self, cfg):
+    base_cfg = {}
+    for var, function in self.to_base_mapping:
+      base_cfg[var] = function(cfg)
+    return base_cfg 
+
+  def fromBaseRepresentation(self, base_cfg):
+    pass
+
+  def interpret(self, base_cfg):
+    #TODO make generic - currently copied from NaiveRepresentation
+    left = set()
+    right = set()
+    down = set()
+    running = set()
+    jumping = set()
+    for i in xrange(0, 12000):
+      if cfg['L{}'.format(i)]:
+        left.add(i)
+      if cfg['R{}'.format(i)]:
+        right.add(i)
+      if cfg['D{}'.format(i)]:
+        down.add(i)
+      if cfg['B{}'.format(i)]:
+        running.add(i)
+      if cfg['A{}'.format(i)]:
+        jumping.add(i)
+    return left, right, down, running, jumping
+
+
+
 class NaiveRepresentation(Representation):
   """Uses a parameter per (button, frame) pair."""
   def manipulator(self):
@@ -226,7 +282,7 @@ class SMBMI(MeasurementInterface):
     pass
 
 def new_bests_movie(args):
-  (stdout, stderr) = subprocess.Popen(["sqlite3", args.database, "select configuration_id from result where tuning_run_id = %d and was_new_best = 1 order by collection_date;" % args.tuning_run], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+  (stdout, stderr) = subprocess.Popen(["sqlite3", args.database, "select configuration_id from result where tuning_run_id = %s and was_new_best = 1 order by collection_date;" % args.tuning_run], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
   cids = stdout.split()
   print '\n'.join(fm2_smb_header())
   for cid in cids:
