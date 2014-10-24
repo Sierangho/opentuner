@@ -97,8 +97,6 @@ group.add_argument('--random-test', action='store_true',
                    help='Generate a random configuration and run it')
 group.add_argument('--random-source', action='store_true',
                    help='Generate a random configuration and print source ')
-group.add_argument('--make-settings-file', action='store_true',
-                   help='Create a skeleton settings file from call graph')
 
 
 # class HalideRandomConfig(opentuner.search.technique.SearchTechnique):
@@ -129,20 +127,12 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     self.min_collection_cost = float('inf')
     if not args.settings_file:
       args.settings_file = os.path.splitext(args.source)[0] + '.settings'
-    if not args.make_settings_file:
-      with open(args.settings_file) as fd:
-        self.settings = json.load(fd)
-      self.post_dominators = post_dominators(self.settings)
-      if not args.input_size:
-        args.input_size = self.settings['input_size']
-    else:
-      #need timing to get settings file
-      timing_prefix = open(os.path.join(os.path.dirname(__file__),
-                                      'timing_prefix.h')).read()
-      self.template = timing_prefix + self.template
-      self.settings = None
-      self.post_dominators = None
-      args.input_size = '1, 1'
+   
+    with open(args.settings_file) as fd:
+      self.settings = json.load(fd)
+    self.post_dominators = post_dominators(self.settings)
+    if not args.input_size:
+      args.input_size = self.settings['input_size']
     # set "program_version" based on hash of halidetuner.py, program source
     h = hashlib.md5()
     #with open(__file__) as src:
@@ -392,72 +382,6 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
         log.error('compile failed: %s', compile_result)
         return None
 
-  def run_source(self, source, limit=0, extra_args=''):
-    cmd = ''
-    with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide',
-                                     dir=self.args.tmp_dir) as cppfile:
-      cppfile.write(source)
-      cppfile.flush()
-      # binfile = os.path.splitext(cppfile.name)[0] + '.bin'
-      # binfile = '/tmp/halide.bin'
-      exefile = ''
-      with tempfile.NamedTemporaryFile(suffix='.exe', prefix='halide',
-                                               dir=self.args.tmp_dir, delete=False) as exefiletmp:
-
-        exefile = exefiletmp.name # unique temp file to allow multiple concurrent tuner runs
-      assert(exefile)
-      cmd = RUN_SRC_CMD.format(
-        cpp=cppfile.name, exe=exefile, args=self.args,
-        limit=math.ceil(limit) if limit < float('inf') else 0)
-      cmd += ' ' + extra_args
-      compile_result = self.call_program(cmd, limit=self.args.limit,
-                                         memory_limit=self.args.memory_limit)
-      if compile_result['returncode'] != 0:
-        log.error('compile failed: %s', compile_result)
-        return None
-
-    try:
-      result = self.call_program(exefile,
-                                 limit=self.args.limit,
-                                 memory_limit=self.args.memory_limit)
-      stdout = result['stdout']
-      stderr = result['stderr']
-      returncode = result['returncode']
-
-      if result['timeout']:
-        log.info('compiler timeout %d (%.2f+%.0f cost)', self.args.limit,
-                 compile_result['time'], self.args.limit)
-        return float('inf')
-      elif returncode == 142 or returncode == -14:
-        log.info('program timeout %d (%.2f+%.2f cost)', math.ceil(limit),
-                 compile_result['time'], result['time'])
-        return None
-      elif returncode != 0:
-        log.error('invalid schedule (returncode=%d): %s', returncode,
-                  stderr.strip())
-        with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide-error',
-                                         dir=self.args.tmp_dir, delete=False) as errfile:
-          errfile.write(source)
-          log.error('failed schedule logged to %s.\ncompile as `%s`.', errfile.name, cmd)
-        if self.args.debug_error is not None and (
-            self.args.debug_error in stderr
-        or self.args.debug_error == ""):
-          self.debug_schedule('/tmp/halideerror.cpp', source)
-        return None
-      else:
-        try:
-          time = json.loads(stdout)['time']
-        except:
-          log.exception('error parsing output: %s', result)
-          return None
-        log.info('success: %.4f (collection cost %.2f + %.2f)',
-                 time, compile_result['time'], result['time'])
-        self.min_collection_cost = min(
-          self.min_collection_cost, result['time'])
-        return time
-    finally:
-      os.unlink(exefile)
-
   def run_cfg(self, cfg, limit=0):
     try:
       schedule = self.cfg_to_schedule(cfg)
@@ -486,45 +410,6 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
   def debug_schedule(self, filename, source):
     self.debug_log_schedule(filename, source)
     raw_input('press ENTER to continue')
-
-  def make_settings_file(self):
-    dump_call_graph_dir = os.path.join(os.path.dirname(__file__),
-                                       'dump-call-graph')
-    if not os.path.isdir(dump_call_graph_dir):
-      subprocess.check_call(['git', 'clone',
-                             'http://github.com/halide/dump-call-graph.git'])
-      assert os.path.isdir(dump_call_graph_dir)
-
-    dump_call_graph_cpp = os.path.join(dump_call_graph_dir, 'DumpCallGraph.cpp')
-    callgraph_file = self.args.settings_file + '.callgraph'
-
-    def repl_autotune_hook(match):
-      return r'''dump_call_graph("%s", %s);
-                 printf("{\"time\": 0}\n");
-                 exit(0);''' % (callgraph_file, match.group(1))
-
-    source = re.sub(r'\n\s*AUTOTUNE_HOOK\(\s*([a-zA-Z0-9_]+)\s*\)',
-                    repl_autotune_hook, self.template)
-    # TODO: BUG! - this only works correctly if given an absolute path to the
-    # program (or explicit settings file). Otherwise it generates the callgraph
-    # in a tmp dir somewhere and fails to find it in a local path here.
-    source = open(dump_call_graph_cpp).read() + source
-    self.run_source(source, extra_args='-I{0}'.format(dump_call_graph_dir))
-    callgraph = json.load(open(callgraph_file))
-    settings = {'input_size': '1024, 1024', 'functions': callgraph}
-    json.dump(settings, open(self.args.settings_file, 'w'), sort_keys=True,
-              indent=2)
-    print textwrap.dedent('''
-
-      {0} has been generated based on call graph of program.
-
-      This file likely needs some manual tweaks in order to work correctly.
-      The input size should be changed to have the right number of dimensions.
-      Any naming differences between variable names and function names must
-      be applied manually.  Some temporary variables not in the source code
-      need to be manually removed.
-
-    '''.format(self.args.settings_file))
 
 
 class ComputeAtStoreAtParser(object):
@@ -716,9 +601,6 @@ def main(args):
     random_test(args)
   elif args.random_source:
     random_source(args)
-  elif args.make_settings_file:
-    opentuner.tuningrunmain.init_logging()
-    HalideTuner(args).make_settings_file()
   else:
     HalideTuner.main(args)
 
