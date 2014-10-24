@@ -38,12 +38,11 @@ from opentuner.search.manipulator import BooleanParameter
 from opentuner.search.manipulator import ScheduleParameter
 
 
-#TODO change
-COMPILE_CMD = (
-  '{args.cxx} "{cpp}" -o "{bin}" -I "{args.halide_dir}/include" '
-  '"{args.halide_dir}/bin/$BUILD_PREFIX/libHalide.a" -ldl -lcurses -lpthread {args.cxxflags} '
-  '-DAUTOTUNE_N="{args.input_size}" -DAUTOTUNE_TRIALS={args.trials} '
-  '-DAUTOTUNE_LIMIT={limit} -fno-rtti')
+#TODO GENERATE halide_out_0.def. also change the name
+COMPILE_CMD = '"{args.vcvarsall}" &' # load microsoft visual c compiler
+COMPILE_CMD += 'cl "{cpp}" -I "{args.halide_dir}" -Fe"{args.tmp_dir}/gen" -link "{args.halide_dir}/halide.lib" &' # compile halide
+COMPILE_CMD += '"{args.tmp_dir}/gen.exe" &' #create halide files
+COMPILE_CMD += 'link -out:{args.tmp_dir}/filter.dll -dll -def:"{args.tmp_dir}/{args.halide_output_name}" "{args/tmp_dr}/{args.halide_output_name}.o" msvcrt.lib' #create dll
 
 log = logging.getLogger('halide')
 
@@ -79,6 +78,12 @@ parser.add_argument('--enable-store-at', action='store_true',
                     help='Never generate .store_at(...)')
 parser.add_argument('--gated-store-reorder', action='store_true',
                     help='Only reorder storage if a special parameter is given')
+
+parser.add_argument('--vcvarsall', default='C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat',
+                    help='Directory where Microsoft VS vcvarsall.bat is located')
+parser.add_argument('--halide-output-name', default='halide_out_0',
+                    help='Name of output file from halide code. Should remove this eventually')
+
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--random-test', action='store_true',
                    help='Generate a random configuration and run it')
@@ -187,6 +192,8 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     schedule = ComputeAtStoreAtParser(cfg['schedule'], self.post_dominators)
     compute_at = schedule.compute_at
     store_at = schedule.store_at
+
+    #TODO insert tile sizes as commented fields
 
     # build list of all used variable names
     var_names = dict()
@@ -320,7 +327,7 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
                     repl_autotune_hook, self.template)
     return source
 
-  def run_schedule(self, schedule, limit):
+  def run_schedule(self, schedule, cfg):
     """
     TODO
     Generate a temporary Halide cpp file with schedule inserted and compile.
@@ -329,26 +336,22 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     notify Photoshop and pass tile size to test
     Wait for response.
     """
-    return self.run_source(self.schedule_to_source(schedule), limit)
+    self.build_dll(self.schedule_to_source(schedule))
+    
+    #TODO write to file with tile sizes
 
+    #TODO listen to file write with time
+    return 5
 
-  def run_source(self, source, limit=0, extra_args=''):
+  def build_dll(self, schedule):
     cmd = ''
     with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide',
                                      dir=self.args.tmp_dir) as cppfile:
       cppfile.write(source)
       cppfile.flush()
-      # binfile = os.path.splitext(cppfile.name)[0] + '.bin'
-      # binfile = '/tmp/halide.bin'
-      binfile = ''
-      with tempfile.NamedTemporaryFile(suffix='.bin', prefix='halide',
-                                               dir=self.args.tmp_dir, delete=False) as binfiletmp:
-
-        binfile = binfiletmp.name # unique temp file to allow multiple concurrent tuner runs
-      assert(binfile)
-      cmd = self.args.compile_command.format(
-        cpp=cppfile.name, bin=binfile, args=self.args,
-        limit=math.ceil(limit) if limit < float('inf') else 0)
+      
+      #TODO
+      cmd = self.args.compile_command.format(cpp=cppfile.name, args=self.args)
       cmd += ' ' + extra_args
       compile_result = self.call_program(cmd, limit=self.args.limit,
                                          memory_limit=self.args.memory_limit)
@@ -356,47 +359,71 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
         log.error('compile failed: %s', compile_result)
         return None
 
-    try:
-      result = self.call_program(binfile,
-                                 limit=self.args.limit,
-                                 memory_limit=self.args.memory_limit)
-      stdout = result['stdout']
-      stderr = result['stderr']
-      returncode = result['returncode']
+  # def run_source(self, source, limit=0, extra_args=''):
+  #   cmd = ''
+  #   with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide',
+  #                                    dir=self.args.tmp_dir) as cppfile:
+  #     cppfile.write(source)
+  #     cppfile.flush()
+  #     # binfile = os.path.splitext(cppfile.name)[0] + '.bin'
+  #     # binfile = '/tmp/halide.bin'
+  #     binfile = ''
+  #     with tempfile.NamedTemporaryFile(suffix='.bin', prefix='halide',
+  #                                              dir=self.args.tmp_dir, delete=False) as binfiletmp:
 
-      if result['timeout']:
-        log.info('compiler timeout %d (%.2f+%.0f cost)', self.args.limit,
-                 compile_result['time'], self.args.limit)
-        return float('inf')
-      elif returncode == 142 or returncode == -14:
-        log.info('program timeout %d (%.2f+%.2f cost)', math.ceil(limit),
-                 compile_result['time'], result['time'])
-        return None
-      elif returncode != 0:
-        log.error('invalid schedule (returncode=%d): %s', returncode,
-                  stderr.strip())
-        with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide-error',
-                                         dir=self.args.tmp_dir, delete=False) as errfile:
-          errfile.write(source)
-          log.error('failed schedule logged to %s.\ncompile as `%s`.', errfile.name, cmd)
-        if self.args.debug_error is not None and (
-            self.args.debug_error in stderr
-        or self.args.debug_error == ""):
-          self.debug_schedule('/tmp/halideerror.cpp', source)
-        return None
-      else:
-        try:
-          time = json.loads(stdout)['time']
-        except:
-          log.exception('error parsing output: %s', result)
-          return None
-        log.info('success: %.4f (collection cost %.2f + %.2f)',
-                 time, compile_result['time'], result['time'])
-        self.min_collection_cost = min(
-          self.min_collection_cost, result['time'])
-        return time
-    finally:
-      os.unlink(binfile)
+  #       binfile = binfiletmp.name # unique temp file to allow multiple concurrent tuner runs
+  #     assert(binfile)
+  #     cmd = self.args.compile_command.format(
+  #       cpp=cppfile.name, bin=binfile, args=self.args,
+  #       limit=math.ceil(limit) if limit < float('inf') else 0)
+  #     cmd += ' ' + extra_args
+  #     compile_result = self.call_program(cmd, limit=self.args.limit,
+  #                                        memory_limit=self.args.memory_limit)
+  #     if compile_result['returncode'] != 0:
+  #       log.error('compile failed: %s', compile_result)
+  #       return None
+
+  #   try:
+  #     result = self.call_program(binfile,
+  #                                limit=self.args.limit,
+  #                                memory_limit=self.args.memory_limit)
+  #     stdout = result['stdout']
+  #     stderr = result['stderr']
+  #     returncode = result['returncode']
+
+  #     if result['timeout']:
+  #       log.info('compiler timeout %d (%.2f+%.0f cost)', self.args.limit,
+  #                compile_result['time'], self.args.limit)
+  #       return float('inf')
+  #     elif returncode == 142 or returncode == -14:
+  #       log.info('program timeout %d (%.2f+%.2f cost)', math.ceil(limit),
+  #                compile_result['time'], result['time'])
+  #       return None
+  #     elif returncode != 0:
+  #       log.error('invalid schedule (returncode=%d): %s', returncode,
+  #                 stderr.strip())
+  #       with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide-error',
+  #                                        dir=self.args.tmp_dir, delete=False) as errfile:
+  #         errfile.write(source)
+  #         log.error('failed schedule logged to %s.\ncompile as `%s`.', errfile.name, cmd)
+  #       if self.args.debug_error is not None and (
+  #           self.args.debug_error in stderr
+  #       or self.args.debug_error == ""):
+  #         self.debug_schedule('/tmp/halideerror.cpp', source)
+  #       return None
+  #     else:
+  #       try:
+  #         time = json.loads(stdout)['time']
+  #       except:
+  #         log.exception('error parsing output: %s', result)
+  #         return None
+  #       log.info('success: %.4f (collection cost %.2f + %.2f)',
+  #                time, compile_result['time'], result['time'])
+  #       self.min_collection_cost = min(
+  #         self.min_collection_cost, result['time'])
+  #       return time
+  #   finally:
+  #     os.unlink(binfile)
 
   def run_cfg(self, cfg, limit=0):
     try:
@@ -404,7 +431,7 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     except:
       log.exception('error generating schedule')
       return None
-    return self.run_schedule(schedule, limit)
+    return self.run_schedule(schedule, cfg)
 
   def run(self, desired_result, input, limit):
     time = self.run_cfg(desired_result.configuration.data, limit)
@@ -636,7 +663,7 @@ def random_test(args):
   schedule = m.cfg_to_schedule(cfg)
   print schedule
   print
-  print 'Schedule', m.run_schedule(schedule, 30)
+  print 'Schedule', m.run_schedule(schedule, cfg)
 
 
 def random_source(args):
