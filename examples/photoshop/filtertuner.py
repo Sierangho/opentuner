@@ -45,7 +45,7 @@ COMPILE_CMD += '"{args.tmp_dir}/gen.exe" &' #create halide files
 COMPILE_CMD += 'link -out:{args.tmp_dir}/filter.dll -dll -def:"{args.tmp_dir}/{args.halide_output_name}" "{args/tmp_dr}/{args.halide_output_name}.o" msvcrt.lib' #create dll
 
 RUN_SRC_CMD = (
-  '"{args.vcvarsall}"'
+  '"{args.vcvarsall}" &'
   'cl "{cpp}" -o "{exe}" -I "{args.halide_dir}" '
   '-link "{args.halide_dir}/halide.lib" '
   '-DAUTOTUNE_N="{args.input_size}" -DAUTOTUNE_TRIALS={args.trials} '
