@@ -44,6 +44,14 @@ COMPILE_CMD += 'cl "{cpp}" -I "{args.halide_dir}" -Fe"{args.tmp_dir}/gen" -link 
 COMPILE_CMD += '"{args.tmp_dir}/gen.exe" &' #create halide files
 COMPILE_CMD += 'link -out:{args.tmp_dir}/filter.dll -dll -def:"{args.tmp_dir}/{args.halide_output_name}" "{args/tmp_dr}/{args.halide_output_name}.o" msvcrt.lib' #create dll
 
+RUN_SRC_CMD = (
+  '"{args.vcvarsall}"'
+  'cl "{cpp}" -o "{exe}" -I "{args.halide_dir}" '
+  '-link "{args.halide_dir}/halide.lib" '
+  '-DAUTOTUNE_N="{args.input_size}" -DAUTOTUNE_TRIALS={args.trials} '
+  '-DAUTOTUNE_LIMIT={limit} -fno-rtti')
+
+
 log = logging.getLogger('halide')
 
 parser = argparse.ArgumentParser(parents=opentuner.argparsers())
@@ -128,6 +136,10 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
       if not args.input_size:
         args.input_size = self.settings['input_size']
     else:
+      #need timing to get settings file
+      timing_prefix = open(os.path.join(os.path.dirname(__file__),
+                                      'timing_prefix.h')).read()
+      self.template = timing_prefix + self.template
       self.settings = None
       self.post_dominators = None
       args.input_size = '1, 1'
@@ -327,6 +339,27 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
                     repl_autotune_hook, self.template)
     return source
 
+  def schedule_to_source_old(self, schedule):
+    """
+    Generate a temporary Halide cpp file with schedule inserted- kept to generate settings file
+    """
+
+    def repl_autotune_hook(match):
+      tmpl = '''
+    {
+        std::map<std::string, Halide::Internal::Function> funcs = Halide::Internal::find_transitive_calls((%(func)s).function());
+
+        %(sched)s
+
+        _autotune_timing_stub(%(func)s);
+    }'''
+      return tmpl % {"sched": schedule.replace('\n', '\n        '), "func": match.group(1)}
+
+    source = re.sub(r'\n\s*AUTOTUNE_HOOK\(\s*([a-zA-Z0-9_]+)\s*\)',
+                    repl_autotune_hook, self.template)
+    return source
+
+
   def run_schedule(self, schedule, cfg):
     """
     TODO
@@ -359,71 +392,71 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
         log.error('compile failed: %s', compile_result)
         return None
 
-  # def run_source(self, source, limit=0, extra_args=''):
-  #   cmd = ''
-  #   with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide',
-  #                                    dir=self.args.tmp_dir) as cppfile:
-  #     cppfile.write(source)
-  #     cppfile.flush()
-  #     # binfile = os.path.splitext(cppfile.name)[0] + '.bin'
-  #     # binfile = '/tmp/halide.bin'
-  #     binfile = ''
-  #     with tempfile.NamedTemporaryFile(suffix='.bin', prefix='halide',
-  #                                              dir=self.args.tmp_dir, delete=False) as binfiletmp:
+  def run_source(self, source, limit=0, extra_args=''):
+    cmd = ''
+    with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide',
+                                     dir=self.args.tmp_dir) as cppfile:
+      cppfile.write(source)
+      cppfile.flush()
+      # binfile = os.path.splitext(cppfile.name)[0] + '.bin'
+      # binfile = '/tmp/halide.bin'
+      exefile = ''
+      with tempfile.NamedTemporaryFile(suffix='.exe', prefix='halide',
+                                               dir=self.args.tmp_dir, delete=False) as exefiletmp:
 
-  #       binfile = binfiletmp.name # unique temp file to allow multiple concurrent tuner runs
-  #     assert(binfile)
-  #     cmd = self.args.compile_command.format(
-  #       cpp=cppfile.name, bin=binfile, args=self.args,
-  #       limit=math.ceil(limit) if limit < float('inf') else 0)
-  #     cmd += ' ' + extra_args
-  #     compile_result = self.call_program(cmd, limit=self.args.limit,
-  #                                        memory_limit=self.args.memory_limit)
-  #     if compile_result['returncode'] != 0:
-  #       log.error('compile failed: %s', compile_result)
-  #       return None
+        exefile = exefiletmp.name # unique temp file to allow multiple concurrent tuner runs
+      assert(exefile)
+      cmd = RUN_SRC_CMD.format(
+        cpp=cppfile.name, exe=exefile, args=self.args,
+        limit=math.ceil(limit) if limit < float('inf') else 0)
+      cmd += ' ' + extra_args
+      compile_result = self.call_program(cmd, limit=self.args.limit,
+                                         memory_limit=self.args.memory_limit)
+      if compile_result['returncode'] != 0:
+        log.error('compile failed: %s', compile_result)
+        return None
 
-  #   try:
-  #     result = self.call_program(binfile,
-  #                                limit=self.args.limit,
-  #                                memory_limit=self.args.memory_limit)
-  #     stdout = result['stdout']
-  #     stderr = result['stderr']
-  #     returncode = result['returncode']
+    try:
+      result = self.call_program(exefile,
+                                 limit=self.args.limit,
+                                 memory_limit=self.args.memory_limit)
+      stdout = result['stdout']
+      stderr = result['stderr']
+      returncode = result['returncode']
 
-  #     if result['timeout']:
-  #       log.info('compiler timeout %d (%.2f+%.0f cost)', self.args.limit,
-  #                compile_result['time'], self.args.limit)
-  #       return float('inf')
-  #     elif returncode == 142 or returncode == -14:
-  #       log.info('program timeout %d (%.2f+%.2f cost)', math.ceil(limit),
-  #                compile_result['time'], result['time'])
-  #       return None
-  #     elif returncode != 0:
-  #       log.error('invalid schedule (returncode=%d): %s', returncode,
-  #                 stderr.strip())
-  #       with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide-error',
-  #                                        dir=self.args.tmp_dir, delete=False) as errfile:
-  #         errfile.write(source)
-  #         log.error('failed schedule logged to %s.\ncompile as `%s`.', errfile.name, cmd)
-  #       if self.args.debug_error is not None and (
-  #           self.args.debug_error in stderr
-  #       or self.args.debug_error == ""):
-  #         self.debug_schedule('/tmp/halideerror.cpp', source)
-  #       return None
-  #     else:
-  #       try:
-  #         time = json.loads(stdout)['time']
-  #       except:
-  #         log.exception('error parsing output: %s', result)
-  #         return None
-  #       log.info('success: %.4f (collection cost %.2f + %.2f)',
-  #                time, compile_result['time'], result['time'])
-  #       self.min_collection_cost = min(
-  #         self.min_collection_cost, result['time'])
-  #       return time
-  #   finally:
-  #     os.unlink(binfile)
+      if result['timeout']:
+        log.info('compiler timeout %d (%.2f+%.0f cost)', self.args.limit,
+                 compile_result['time'], self.args.limit)
+        return float('inf')
+      elif returncode == 142 or returncode == -14:
+        log.info('program timeout %d (%.2f+%.2f cost)', math.ceil(limit),
+                 compile_result['time'], result['time'])
+        return None
+      elif returncode != 0:
+        log.error('invalid schedule (returncode=%d): %s', returncode,
+                  stderr.strip())
+        with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide-error',
+                                         dir=self.args.tmp_dir, delete=False) as errfile:
+          errfile.write(source)
+          log.error('failed schedule logged to %s.\ncompile as `%s`.', errfile.name, cmd)
+        if self.args.debug_error is not None and (
+            self.args.debug_error in stderr
+        or self.args.debug_error == ""):
+          self.debug_schedule('/tmp/halideerror.cpp', source)
+        return None
+      else:
+        try:
+          time = json.loads(stdout)['time']
+        except:
+          log.exception('error parsing output: %s', result)
+          return None
+        log.info('success: %.4f (collection cost %.2f + %.2f)',
+                 time, compile_result['time'], result['time'])
+        self.min_collection_cost = min(
+          self.min_collection_cost, result['time'])
+        return time
+    finally:
+      os.unlink(exefile)
 
   def run_cfg(self, cfg, limit=0):
     try:
