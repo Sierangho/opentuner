@@ -1,0 +1,4 @@
+{"functions": [
+	{"name": "inv", "vars":["x_0", "x_1"], "calls":["blur"]},
+    {"name": "blur", "vars": ["x_0", "x_1"], "calls": []},
+    {"name": "sharpenmore", "vars": ["x_0", "x_1"], "calls":["inv"]}]}

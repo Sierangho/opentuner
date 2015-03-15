@@ -1,0 +1,3571 @@
+	.text
+	.def	 @feat.00;
+	.scl	3;
+	.type	0;
+	.endef
+	.globl	@feat.00
+@feat.00 = 1
+	.def	 _halide_current_time_ns;
+	.scl	2;
+	.type	32;
+	.endef
+	.globl	__real@41cdcd6500000000
+	.section	.rdata,"rd",discard,__real@41cdcd6500000000
+	.align	8
+__real@41cdcd6500000000:
+	.quad	4741671816366391296     # double 1.0E+9
+	.section	.text,"xr",discard,_halide_current_time_ns
+	.globl	_halide_current_time_ns
+	.align	16, 0x90
+_halide_current_time_ns:                # @halide_current_time_ns
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	andl	$-8, %esp
+	subl	$56, %esp
+	leal	48(%esp), %eax
+	movl	%eax, (%esp)
+	calll	_QueryPerformanceCounter@4
+	subl	$4, %esp
+	movl	48(%esp), %eax
+	movl	52(%esp), %ecx
+	subl	_halide_reference_clock, %eax
+	sbbl	_halide_reference_clock+4, %ecx
+	fildll	_halide_clock_frequency
+	fstpl	40(%esp)
+	vmovsd	__real@41cdcd6500000000, %xmm0
+	vdivsd	40(%esp), %xmm0, %xmm0
+	movl	%eax, 32(%esp)
+	movl	%ecx, 36(%esp)
+	fildll	32(%esp)
+	fstpl	24(%esp)
+	vmulsd	24(%esp), %xmm0, %xmm0
+	vmovsd	%xmm0, 16(%esp)
+	fldl	16(%esp)
+	fisttpll	8(%esp)
+	movl	8(%esp), %eax
+	movl	12(%esp), %edx
+	movl	%ebp, %esp
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal17halide_print_implEPvPKc;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal17halide_print_implEPvPKc
+	.globl	__ZN6Halide7Runtime8Internal17halide_print_implEPvPKc
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal17halide_print_implEPvPKc: # @_ZN6Halide7Runtime8Internal17halide_print_implEPvPKc
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	subl	$12, %esp
+	movl	12(%ebp), %esi
+	movl	%esi, (%esp)
+	calll	_strlen
+	movl	%eax, 8(%esp)
+	movl	%esi, 4(%esp)
+	movl	$1, (%esp)
+	calll	__write
+	addl	$12, %esp
+	popl	%esi
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal10init_mutexEPyPvPS3_@12;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal10init_mutexEPyPvPS3_@12
+	.globl	__ZN6Halide7Runtime8Internal10init_mutexEPyPvPS3_@12
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal10init_mutexEPyPvPS3_@12: # @_ZN6Halide7Runtime8Internal10init_mutexEPyPvPS3_
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%eax
+	movl	12(%ebp), %eax
+	addl	$8, %eax
+	movl	%eax, (%esp)
+	calll	_InitializeCriticalSection@4
+	subl	$4, %esp
+	movl	$1, %eax
+	addl	$4, %esp
+	popl	%ebp
+	retl	$12
+
+	.def	 _halide_mutex_cleanup;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_mutex_cleanup
+	.globl	_halide_mutex_cleanup
+	.align	16, 0x90
+_halide_mutex_cleanup:                  # @halide_mutex_cleanup
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$16, %esp
+	movl	8(%ebp), %eax
+	movl	%eax, -4(%ebp)
+	movl	(%eax), %ecx
+	orl	4(%eax), %ecx
+	je	LBB3_2
+# BB#1:                                 # %if.then
+	addl	$8, %eax
+	movl	%eax, (%esp)
+	calll	_DeleteCriticalSection@4
+	subl	$4, %esp
+	movl	-4(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$64, 8(%esp)
+	movl	$0, 4(%esp)
+	calll	_memset
+LBB3_2:                                 # %if.end
+	addl	$16, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_mutex_lock;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_mutex_lock
+	.globl	_halide_mutex_lock
+	.align	16, 0x90
+_halide_mutex_lock:                     # @halide_mutex_lock
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	subl	$16, %esp
+	movl	8(%ebp), %esi
+	movl	%esi, 8(%esp)
+	movl	%esi, (%esp)
+	movl	$0, 12(%esp)
+	movl	$__ZN6Halide7Runtime8Internal10init_mutexEPyPvPS3_@12, 4(%esp)
+	calll	_InitOnceExecuteOnce@16
+	subl	$16, %esp
+	addl	$8, %esi
+	movl	%esi, (%esp)
+	calll	_EnterCriticalSection@4
+	addl	$12, %esp
+	popl	%esi
+	popl	%ebp
+	retl
+
+	.def	 _halide_mutex_unlock;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_mutex_unlock
+	.globl	_halide_mutex_unlock
+	.align	16, 0x90
+_halide_mutex_unlock:                   # @halide_mutex_unlock
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%eax
+	movl	8(%ebp), %eax
+	addl	$8, %eax
+	movl	%eax, (%esp)
+	calll	_LeaveCriticalSection@4
+	popl	%ebp
+	retl
+
+	.def	 _halide_shutdown_thread_pool;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_shutdown_thread_pool
+	.globl	_halide_shutdown_thread_pool
+	.align	16, 0x90
+_halide_shutdown_thread_pool:           # @halide_shutdown_thread_pool
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	subl	$8, %esp
+	testb	$1, __ZN6Halide7Runtime8Internal30halide_thread_pool_initializedE
+	je	LBB6_5
+# BB#1:                                 # %if.end
+	leal	__ZN6Halide7Runtime8Internal17halide_work_queueE+8, %esi
+	movl	%esi, (%esp)
+	calll	_EnterCriticalSection@4
+	subl	$4, %esp
+	movb	$1, __ZN6Halide7Runtime8Internal17halide_work_queueE+320
+	leal	__ZN6Halide7Runtime8Internal17halide_work_queueE+56, %eax
+	movl	%eax, (%esp)
+	calll	_WakeAllConditionVariable@4
+	subl	$4, %esp
+	movl	%esi, (%esp)
+	calll	_LeaveCriticalSection@4
+	subl	$4, %esp
+	cmpl	$2, __ZN6Halide7Runtime8Internal18halide_num_threadsE
+	jl	LBB6_4
+# BB#2:
+	xorl	%edi, %edi
+	leal	__ZN6Halide7Runtime8Internal17halide_work_queueE+64, %ebx
+	.align	16, 0x90
+LBB6_3:                                 # %for.body
+                                        # =>This Inner Loop Header: Depth=1
+	movl	(%ebx), %eax
+	movl	%eax, (%esp)
+	movl	$-1, 4(%esp)
+	calll	_WaitForSingleObject@8
+	subl	$8, %esp
+	incl	%edi
+	movl	__ZN6Halide7Runtime8Internal18halide_num_threadsE, %eax
+	decl	%eax
+	addl	$4, %ebx
+	cmpl	%eax, %edi
+	jl	LBB6_3
+LBB6_4:                                 # %for.end
+	movl	%esi, (%esp)
+	calll	_DeleteCriticalSection@4
+	subl	$4, %esp
+	movl	$0, __ZN6Halide7Runtime8Internal17halide_work_queueE+4
+	movl	$0, __ZN6Halide7Runtime8Internal17halide_work_queueE
+	movb	$0, __ZN6Halide7Runtime8Internal30halide_thread_pool_initializedE
+LBB6_5:                                 # %return
+	addl	$8, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_num_threads;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_num_threads
+	.globl	_halide_set_num_threads
+	.align	16, 0x90
+_halide_set_num_threads:                # @halide_set_num_threads
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	movl	8(%ebp), %esi
+	cmpl	%esi, __ZN6Halide7Runtime8Internal18halide_num_threadsE
+	je	LBB7_4
+# BB#1:                                 # %if.end
+	testb	$1, __ZN6Halide7Runtime8Internal30halide_thread_pool_initializedE
+	je	LBB7_3
+# BB#2:                                 # %if.then1
+	calll	_halide_shutdown_thread_pool
+LBB7_3:                                 # %if.end2
+	movl	%esi, __ZN6Halide7Runtime8Internal18halide_num_threadsE
+LBB7_4:                                 # %return
+	popl	%esi
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_custom_do_task;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_custom_do_task
+	.globl	_halide_set_custom_do_task
+	.align	16, 0x90
+_halide_set_custom_do_task:             # @halide_set_custom_do_task
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal21halide_custom_do_taskE
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_custom_do_par_for;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_custom_do_par_for
+	.globl	_halide_set_custom_do_par_for
+	.align	16, 0x90
+_halide_set_custom_do_par_for:          # @halide_set_custom_do_par_for
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal24halide_custom_do_par_forE
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_ocl_platform_name;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_ocl_platform_name
+	.globl	_halide_set_ocl_platform_name
+	.align	16, 0x90
+_halide_set_ocl_platform_name:          # @halide_set_ocl_platform_name
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$12, %esp
+	movl	8(%ebp), %eax
+	testl	%eax, %eax
+	je	LBB10_2
+# BB#1:                                 # %if.then
+	movl	%eax, 4(%esp)
+	movl	$255, 8(%esp)
+	movl	$__ZN6Halide7Runtime8Internal24halide_ocl_platform_nameE, (%esp)
+	calll	_strncpy
+	jmp	LBB10_3
+LBB10_2:                                # %if.else
+	movb	$0, __ZN6Halide7Runtime8Internal24halide_ocl_platform_nameE
+LBB10_3:                                # %if.end
+	movb	$1, __ZN6Halide7Runtime8Internal36halide_ocl_platform_name_initializedE
+	addl	$12, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_ocl_device_type;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_ocl_device_type
+	.globl	_halide_set_ocl_device_type
+	.align	16, 0x90
+_halide_set_ocl_device_type:            # @halide_set_ocl_device_type
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$12, %esp
+	movl	8(%ebp), %eax
+	testl	%eax, %eax
+	je	LBB11_2
+# BB#1:                                 # %if.then
+	movl	%eax, 4(%esp)
+	movl	$255, 8(%esp)
+	movl	$__ZN6Halide7Runtime8Internal22halide_ocl_device_typeE, (%esp)
+	calll	_strncpy
+	jmp	LBB11_3
+LBB11_2:                                # %if.else
+	movb	$0, __ZN6Halide7Runtime8Internal22halide_ocl_device_typeE
+LBB11_3:                                # %if.end
+	movb	$1, __ZN6Halide7Runtime8Internal34halide_ocl_device_type_initializedE
+	addl	$12, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_gpu_device;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_gpu_device
+	.globl	_halide_set_gpu_device
+	.align	16, 0x90
+_halide_set_gpu_device:                 # @halide_set_gpu_device
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal17halide_gpu_deviceE
+	movb	$1, __ZN6Halide7Runtime8Internal29halide_gpu_device_initializedE
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_custom_trace;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_custom_trace
+	.globl	_halide_set_custom_trace
+	.align	16, 0x90
+_halide_set_custom_trace:               # @halide_set_custom_trace
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal19halide_custom_traceE
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_trace_file;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_trace_file
+	.globl	_halide_set_trace_file
+	.align	16, 0x90
+_halide_set_trace_file:                 # @halide_set_trace_file
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal17halide_trace_fileE
+	movb	$1, __ZN6Halide7Runtime8Internal29halide_trace_file_initializedE
+	popl	%ebp
+	retl
+
+	.def	 _halide_shutdown_trace;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_shutdown_trace
+	.globl	_halide_shutdown_trace
+	.align	16, 0x90
+_halide_shutdown_trace:                 # @halide_shutdown_trace
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%eax
+	testb	$1, __ZN6Halide7Runtime8Internal35halide_trace_file_internally_openedE
+	je	LBB15_2
+# BB#1:                                 # %if.then
+	movl	__ZN6Halide7Runtime8Internal17halide_trace_fileE, %eax
+	movl	%eax, (%esp)
+	calll	__close
+	movl	$0, __ZN6Halide7Runtime8Internal17halide_trace_fileE
+	movb	$0, __ZN6Halide7Runtime8Internal29halide_trace_file_initializedE
+	movb	$0, __ZN6Halide7Runtime8Internal35halide_trace_file_internally_openedE
+	jmp	LBB15_3
+LBB15_2:                                # %return
+	xorl	%eax, %eax
+LBB15_3:                                # %return
+	addl	$4, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_custom_allocator;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_custom_allocator
+	.globl	_halide_set_custom_allocator
+	.align	16, 0x90
+_halide_set_custom_allocator:           # @halide_set_custom_allocator
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	12(%ebp), %eax
+	movl	8(%ebp), %ecx
+	movl	%ecx, __ZN6Halide7Runtime8Internal20halide_custom_mallocE
+	movl	%eax, __ZN6Halide7Runtime8Internal18halide_custom_freeE
+	popl	%ebp
+	retl
+
+	.def	 _halide_malloc;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_malloc
+	.globl	_halide_malloc
+	.align	16, 0x90
+_halide_malloc:                         # @halide_malloc
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	__ZN6Halide7Runtime8Internal20halide_custom_mallocE, %eax
+	testl	%eax, %eax
+	je	LBB17_1
+# BB#4:                                 # %if.then
+	addl	$8, %esp
+	popl	%ebp
+	jmpl	*%eax                   # TAILCALL
+LBB17_1:                                # %if.else
+	movl	12(%ebp), %eax
+	addl	$40, %eax
+	movl	%eax, (%esp)
+	calll	_malloc
+	xorl	%ecx, %ecx
+	testl	%eax, %eax
+	je	LBB17_3
+# BB#2:                                 # %if.end
+	movl	%eax, %ecx
+	addl	$32, %ecx
+	andl	$-32, %ecx
+	movl	%ecx, -4(%ebp)
+	movl	%eax, -4(%ecx)
+	movl	-4(%ebp), %ecx
+LBB17_3:                                # %return
+	movl	%ecx, %eax
+	addl	$8, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_free;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_free
+	.globl	_halide_free
+	.align	16, 0x90
+_halide_free:                           # @halide_free
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	12(%ebp), %eax
+	movl	%eax, -4(%ebp)
+	movl	__ZN6Halide7Runtime8Internal18halide_custom_freeE, %eax
+	testl	%eax, %eax
+	je	LBB18_1
+# BB#2:                                 # %if.then
+	addl	$8, %esp
+	popl	%ebp
+	jmpl	*%eax                   # TAILCALL
+LBB18_1:                                # %if.else
+	movl	-4(%ebp), %eax
+	movl	-4(%eax), %eax
+	movl	%eax, (%esp)
+	calll	_free
+	addl	$8, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_error;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_error
+	.globl	_halide_error
+	.align	16, 0x90
+_halide_error:                          # @halide_error
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	movl	$4108, %eax             # imm = 0x100C
+	calll	__chkstk
+	movl	__ZN6Halide7Runtime8Internal20halide_error_handlerE, %eax
+	testl	%eax, %eax
+	je	LBB19_1
+# BB#4:                                 # %if.then
+	addl	$4108, %esp             # imm = 0x100C
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	jmpl	*%eax                   # TAILCALL
+LBB19_1:                                # %if.else
+	movl	12(%ebp), %ebx
+	leal	-13(%ebp), %esi
+	movl	%esi, 4(%esp)
+	leal	-4108(%ebp), %edi
+	movl	%edi, (%esp)
+	movl	$L_.str27, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%ebx, 8(%esp)
+	movl	%esi, 4(%esp)
+	movl	%eax, (%esp)
+	calll	_halide_string_to_string
+	movzbl	-1(%eax), %ecx
+	cmpl	$10, %ecx
+	je	LBB19_3
+# BB#2:                                 # %if.then5
+	movw	$10, (%eax)
+LBB19_3:                                # %if.end9
+	movl	%edi, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	calll	_halide_print
+	movl	$1, (%esp)
+	calll	_exit
+	addl	$4108, %esp             # imm = 0x100C
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 _halide_set_error_handler;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_error_handler
+	.globl	_halide_set_error_handler
+	.align	16, 0x90
+_halide_set_error_handler:              # @halide_set_error_handler
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal20halide_error_handlerE
+	popl	%ebp
+	retl
+
+	.def	 _halide_print;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_print
+	.globl	_halide_print
+	.align	16, 0x90
+_halide_print:                          # @halide_print
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	__ZN6Halide7Runtime8Internal19halide_custom_printE, %eax
+	testl	%eax, %eax
+	je	LBB21_2
+# BB#1:                                 # %if.then
+	popl	%ebp
+	jmpl	*%eax                   # TAILCALL
+LBB21_2:                                # %if.else
+	popl	%ebp
+	jmp	__ZN6Halide7Runtime8Internal17halide_print_implEPvPKc # TAILCALL
+
+	.def	 _halide_set_custom_print;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_set_custom_print
+	.globl	_halide_set_custom_print
+	.align	16, 0x90
+_halide_set_custom_print:               # @halide_set_custom_print
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal19halide_custom_printE
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal11full_extentERK8buffer_t;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal11full_extentERK8buffer_t
+	.globl	__ZN6Halide7Runtime8Internal11full_extentERK8buffer_t
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal11full_extentERK8buffer_t: # @_ZN6Halide7Runtime8Internal11full_extentERK8buffer_t
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	movl	8(%ebp), %ecx
+	movl	28(%ecx), %eax
+	movl	32(%ecx), %edx
+	movl	%eax, %esi
+	negl	%esi
+	cmovll	%eax, %esi
+	imull	12(%ecx), %esi
+	cmpl	$1, %esi
+	movl	$1, %eax
+	cmoval	%esi, %eax
+	movl	%edx, %esi
+	negl	%esi
+	cmovll	%edx, %esi
+	imull	16(%ecx), %esi
+	cmpl	%eax, %esi
+	cmovbel	%eax, %esi
+	movl	36(%ecx), %eax
+	movl	%eax, %edx
+	negl	%edx
+	cmovll	%eax, %edx
+	imull	20(%ecx), %edx
+	cmpl	%esi, %edx
+	cmovbel	%esi, %edx
+	movl	40(%ecx), %esi
+	movl	%esi, %eax
+	negl	%eax
+	cmovll	%esi, %eax
+	imull	24(%ecx), %eax
+	cmpl	%edx, %eax
+	cmovbel	%edx, %eax
+	popl	%esi
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal12copy_from_toEPvRK8buffer_tRS3_;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal12copy_from_toEPvRK8buffer_tRS3_
+	.globl	__ZN6Halide7Runtime8Internal12copy_from_toEPvRK8buffer_tRS3_
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal12copy_from_toEPvRK8buffer_tRS3_: # @_ZN6Halide7Runtime8Internal12copy_from_toEPvRK8buffer_tRS3_
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	subl	$12, %esp
+	movl	16(%ebp), %ebx
+	movl	12(%ebp), %edi
+	movl	%edi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal11full_extentERK8buffer_t
+	movl	%eax, %esi
+	movl	60(%edi), %eax
+	cmpl	60(%ebx), %eax
+	je	LBB24_2
+# BB#1:                                 # %if.then
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str36, 4(%esp)
+	calll	_halide_error
+LBB24_2:                                # %for.cond.preheader
+	movl	12(%edi), %eax
+	cmpl	12(%ebx), %eax
+	je	LBB24_4
+# BB#3:                                 # %if.then6
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str137, 4(%esp)
+	calll	_halide_error
+LBB24_4:                                # %if.end7
+	movl	28(%edi), %eax
+	cmpl	28(%ebx), %eax
+	je	LBB24_6
+# BB#5:                                 # %if.then12
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str238, 4(%esp)
+	calll	_halide_error
+LBB24_6:                                # %for.inc
+	movl	16(%edi), %eax
+	cmpl	16(%ebx), %eax
+	je	LBB24_8
+# BB#7:                                 # %if.then6.1
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str137, 4(%esp)
+	calll	_halide_error
+LBB24_8:                                # %if.end7.1
+	movl	32(%edi), %eax
+	cmpl	32(%ebx), %eax
+	je	LBB24_10
+# BB#9:                                 # %if.then12.1
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str238, 4(%esp)
+	calll	_halide_error
+LBB24_10:                               # %for.inc.1
+	movl	20(%edi), %eax
+	cmpl	20(%ebx), %eax
+	je	LBB24_12
+# BB#11:                                # %if.then6.2
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str137, 4(%esp)
+	calll	_halide_error
+LBB24_12:                               # %if.end7.2
+	movl	36(%edi), %eax
+	cmpl	36(%ebx), %eax
+	je	LBB24_14
+# BB#13:                                # %if.then12.2
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str238, 4(%esp)
+	calll	_halide_error
+LBB24_14:                               # %for.inc.2
+	movl	24(%edi), %eax
+	cmpl	24(%ebx), %eax
+	je	LBB24_16
+# BB#15:                                # %if.then6.3
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str137, 4(%esp)
+	calll	_halide_error
+LBB24_16:                               # %if.end7.3
+	movl	40(%edi), %eax
+	cmpl	40(%ebx), %eax
+	je	LBB24_18
+# BB#17:                                # %if.then12.3
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str238, 4(%esp)
+	calll	_halide_error
+LBB24_18:                               # %for.inc.3
+	movl	8(%ebx), %eax
+	movl	8(%edi), %ecx
+	imull	60(%edi), %esi
+	movl	%esi, 8(%esp)
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	_memcpy
+	addl	$12, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal14copy_of_bufferEPvRK8buffer_t;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal14copy_of_bufferEPvRK8buffer_t
+	.globl	__ZN6Halide7Runtime8Internal14copy_of_bufferEPvRK8buffer_t
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal14copy_of_bufferEPvRK8buffer_t: # @_ZN6Halide7Runtime8Internal14copy_of_bufferEPvRK8buffer_t
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	subl	$12, %esp
+	movl	8(%ebp), %esi
+	movl	12(%ebp), %edi
+	movl	16(%ebp), %ebx
+	vmovups	(%ebx), %xmm0
+	vmovups	16(%ebx), %xmm1
+	vmovups	%xmm1, 16(%esi)
+	vmovups	%xmm0, (%esi)
+	vmovups	48(%ebx), %xmm0
+	vmovups	%xmm0, 48(%esi)
+	vmovups	32(%ebx), %xmm0
+	vmovups	%xmm0, 32(%esi)
+	movl	64(%ebx), %eax
+	movl	%eax, 64(%esi)
+	movl	%esi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal11full_extentERK8buffer_t
+	imull	60(%esi), %eax
+	movl	%eax, 4(%esp)
+	movl	%edi, (%esp)
+	calll	_halide_malloc
+	movl	%eax, 8(%esi)
+	movl	%esi, 8(%esp)
+	movl	%ebx, 4(%esp)
+	movl	%edi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal12copy_from_toEPvRK8buffer_tRS3_
+	movl	%esi, %eax
+	addl	$12, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal10keys_equalEPKhS3_j;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal10keys_equalEPKhS3_j
+	.globl	__ZN6Halide7Runtime8Internal10keys_equalEPKhS3_j
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal10keys_equalEPKhS3_j: # @_ZN6Halide7Runtime8Internal10keys_equalEPKhS3_j
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$12, %esp
+	movl	8(%ebp), %eax
+	movl	12(%ebp), %ecx
+	movl	16(%ebp), %edx
+	movl	%edx, 8(%esp)
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	_memcmp
+	testl	%eax, %eax
+	sete	%al
+	movzbl	%al, %eax
+	addl	$12, %esp
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_
+	.globl	__ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_: # @_ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	12(%ebp), %eax
+	movl	8(%ebp), %ecx
+	movl	60(%ecx), %edx
+	cmpl	60(%eax), %edx
+	jne	LBB27_13
+# BB#1:                                 # %for.cond.preheader
+	movl	44(%ecx), %edx
+	cmpl	44(%eax), %edx
+	jne	LBB27_13
+# BB#2:                                 # %lor.lhs.false
+	movl	12(%ecx), %edx
+	cmpl	12(%eax), %edx
+	jne	LBB27_13
+# BB#3:                                 # %lor.lhs.false10
+	movl	28(%ecx), %edx
+	cmpl	28(%eax), %edx
+	jne	LBB27_13
+# BB#4:                                 # %for.cond
+	movl	48(%ecx), %edx
+	cmpl	48(%eax), %edx
+	jne	LBB27_13
+# BB#5:                                 # %lor.lhs.false.1
+	movl	16(%ecx), %edx
+	cmpl	16(%eax), %edx
+	jne	LBB27_13
+# BB#6:                                 # %lor.lhs.false10.1
+	movl	32(%ecx), %edx
+	cmpl	32(%eax), %edx
+	jne	LBB27_13
+# BB#7:                                 # %for.cond.1
+	movl	52(%ecx), %edx
+	cmpl	52(%eax), %edx
+	jne	LBB27_13
+# BB#8:                                 # %lor.lhs.false.2
+	movl	20(%ecx), %edx
+	cmpl	20(%eax), %edx
+	jne	LBB27_13
+# BB#9:                                 # %lor.lhs.false10.2
+	movl	36(%ecx), %edx
+	cmpl	36(%eax), %edx
+	jne	LBB27_13
+# BB#10:                                # %for.cond.2
+	movl	56(%ecx), %edx
+	cmpl	56(%eax), %edx
+	jne	LBB27_13
+# BB#11:                                # %lor.lhs.false.3
+	movl	24(%ecx), %edx
+	cmpl	24(%eax), %edx
+	jne	LBB27_13
+# BB#12:                                # %lor.lhs.false10.3
+	movl	40(%ecx), %ecx
+	cmpl	40(%eax), %ecx
+	sete	%al
+	movzbl	%al, %eax
+	popl	%ebp
+	retl
+LBB27_13:                               # %return
+	xorl	%eax, %eax
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal8djb_hashEPKhj;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal8djb_hashEPKhj
+	.globl	__ZN6Halide7Runtime8Internal8djb_hashEPKhj
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal8djb_hashEPKhj: # @_ZN6Halide7Runtime8Internal8djb_hashEPKhj
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	movl	12(%ebp), %ecx
+	movl	$5381, %eax             # imm = 0x1505
+	testl	%ecx, %ecx
+	je	LBB28_3
+# BB#1:
+	movl	8(%ebp), %edx
+	xorl	%esi, %esi
+	.align	16, 0x90
+LBB28_2:                                # %for.body
+                                        # =>This Inner Loop Header: Depth=1
+	imull	$33, %eax, %edi
+	movzbl	(%edx,%esi), %eax
+	addl	%edi, %eax
+	incl	%esi
+	cmpl	%ecx, %esi
+	jb	LBB28_2
+LBB28_3:                                # %for.end
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal11prune_cacheEv;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal11prune_cacheEv
+	.globl	__ZN6Halide7Runtime8Internal11prune_cacheEv
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal11prune_cacheEv: # @_ZN6Halide7Runtime8Internal11prune_cacheEv
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	subl	$12, %esp
+	jmp	LBB29_1
+	.align	16, 0x90
+LBB29_17:                               # %for.end
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movl	%esi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntryD2Ev
+	movl	-12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$0, (%esp)
+	calll	_halide_free
+LBB29_1:                                # %entry
+                                        # =>This Loop Header: Depth=1
+                                        #     Child Loop BB29_7 Depth 2
+                                        #     Child Loop BB29_16 Depth 2
+	movl	__ZN6Halide7Runtime8Internal18current_cache_sizeE+4, %ecx
+	movl	__ZN6Halide7Runtime8Internal18current_cache_sizeE, %eax
+	movl	__ZN6Halide7Runtime8Internal19least_recently_usedE, %esi
+	cmpl	__ZN6Halide7Runtime8Internal14max_cache_sizeE, %eax
+	setbe	%al
+	cmpl	__ZN6Halide7Runtime8Internal14max_cache_sizeE+4, %ecx
+	setle	%cl
+	je	LBB29_3
+# BB#2:                                 # %entry
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movb	%cl, %al
+LBB29_3:                                # %entry
+                                        #   in Loop: Header=BB29_1 Depth=1
+	testb	%al, %al
+	jne	LBB29_18
+# BB#4:                                 # %entry
+                                        #   in Loop: Header=BB29_1 Depth=1
+	testl	%esi, %esi
+	je	LBB29_18
+# BB#5:                                 # %while.body
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movl	%esi, -12(%ebp)
+	movzbl	24(%esi), %ecx
+	movl	__ZN6Halide7Runtime8Internal13cache_entriesE(,%ecx,4), %eax
+	cmpl	%esi, %eax
+	je	LBB29_19
+# BB#6:                                 # %while.cond5.preheader
+                                        #   in Loop: Header=BB29_1 Depth=1
+	testl	%eax, %eax
+	je	LBB29_9
+	.align	16, 0x90
+LBB29_7:                                # %land.end10
+                                        #   Parent Loop BB29_1 Depth=1
+                                        # =>  This Inner Loop Header: Depth=2
+	movl	4(%eax), %ecx
+	cmpl	%esi, %ecx
+	je	LBB29_10
+# BB#8:                                 # %while.body11
+                                        #   in Loop: Header=BB29_7 Depth=2
+	movl	%ecx, %eax
+	testl	%ecx, %ecx
+	jne	LBB29_7
+	jmp	LBB29_9
+	.align	16, 0x90
+LBB29_10:                               # %if.end
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movl	4(%esi), %ecx
+	movl	%ecx, 4(%eax)
+	jmp	LBB29_11
+	.align	16, 0x90
+LBB29_19:                               # %if.then
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movl	4(%esi), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal13cache_entriesE(,%ecx,4)
+LBB29_11:                               # %if.end17
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movl	8(%esi), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal19least_recently_usedE
+	testl	%eax, %eax
+	je	LBB29_13
+# BB#12:                                # %if.then19
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movl	$0, 12(%eax)
+LBB29_13:                               # %if.end20
+                                        #   in Loop: Header=BB29_1 Depth=1
+	cmpl	%esi, __ZN6Halide7Runtime8Internal18most_recently_usedE
+	jne	LBB29_15
+# BB#14:                                # %if.then22
+                                        #   in Loop: Header=BB29_1 Depth=1
+	movl	$0, __ZN6Halide7Runtime8Internal18most_recently_usedE
+LBB29_15:                               # %for.cond.preheader
+                                        #   in Loop: Header=BB29_1 Depth=1
+	xorl	%edi, %edi
+	cmpl	$0, 28(%esi)
+	je	LBB29_17
+	.align	16, 0x90
+LBB29_16:                               # %for.body
+                                        #   Parent Loop BB29_1 Depth=1
+                                        # =>  This Inner Loop Header: Depth=2
+	movl	%edi, 4(%esp)
+	movl	%esi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal11full_extentERK8buffer_t
+	movl	__ZN6Halide7Runtime8Internal18current_cache_sizeE+4, %ecx
+	movl	__ZN6Halide7Runtime8Internal18current_cache_sizeE, %edx
+	subl	%eax, %edx
+	sbbl	$0, %ecx
+	movl	%edx, __ZN6Halide7Runtime8Internal18current_cache_sizeE
+	movl	%ecx, __ZN6Halide7Runtime8Internal18current_cache_sizeE+4
+	incl	%edi
+	cmpl	28(%esi), %edi
+	jb	LBB29_16
+	jmp	LBB29_17
+LBB29_18:                               # %while.end26
+	addl	$12, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	retl
+LBB29_9:                                # %if.then14
+	movl	$L_.str339, 4(%esp)
+	movl	$0, (%esp)
+	calll	_halide_error
+
+	.def	 _halide_memoization_cache_set_size;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_memoization_cache_set_size
+	.globl	_halide_memoization_cache_set_size
+	.align	16, 0x90
+_halide_memoization_cache_set_size:     # @halide_memoization_cache_set_size
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	andl	$-8, %esp
+	subl	$16, %esp
+	movl	12(%ebp), %eax
+	movl	8(%ebp), %ecx
+	xorl	%esi, %esi
+	movl	%ecx, %edx
+	orl	%eax, %edx
+	movl	$1048576, %edi          # imm = 0x100000
+	cmovnel	%ecx, %edi
+	cmovnel	%eax, %esi
+	leal	8(%esp), %ebx
+	movl	%ebx, (%esp)
+	movl	$__ZN6Halide7Runtime8Internal16memoization_lockE, 4(%esp)
+	calll	__ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex
+	movl	%esi, __ZN6Halide7Runtime8Internal14max_cache_sizeE+4
+	movl	%edi, __ZN6Halide7Runtime8Internal14max_cache_sizeE
+	calll	__ZN6Halide7Runtime8Internal11prune_cacheEv
+	movl	%ebx, (%esp)
+	calll	__ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev
+	leal	-12(%ebp), %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 _halide_memoization_cache_lookup;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_memoization_cache_lookup
+	.globl	_halide_memoization_cache_lookup
+	.align	16, 0x90
+_halide_memoization_cache_lookup:       # @halide_memoization_cache_lookup
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	andl	$-8, %esp
+	subl	$40, %esp
+	movl	16(%ebp), %eax
+	movl	12(%ebp), %ecx
+	movl	%eax, 4(%esp)
+	movl	%ecx, (%esp)
+	calll	__ZN6Halide7Runtime8Internal8djb_hashEPKhj
+	movl	%eax, 20(%esp)          # 4-byte Spill
+	movzbl	%al, %esi
+	leal	32(%esp), %edi
+	movl	%edi, (%esp)
+	movl	$__ZN6Halide7Runtime8Internal16memoization_lockE, 4(%esp)
+	calll	__ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex
+	movl	__ZN6Halide7Runtime8Internal13cache_entriesE(,%esi,4), %edx
+	movl	%edx, 28(%esp)
+	movb	$1, %al
+	movl	%eax, 16(%esp)          # 4-byte Spill
+	testl	%edx, %edx
+	je	LBB31_29
+# BB#1:
+	movl	24(%ebp), %edi
+	.align	16, 0x90
+LBB31_2:                                # %while.body
+                                        # =>This Loop Header: Depth=1
+                                        #     Child Loop BB31_8 Depth 2
+	movl	20(%esp), %eax          # 4-byte Reload
+	cmpl	%eax, 24(%edx)
+	jne	LBB31_27
+# BB#3:                                 # %land.lhs.true
+                                        #   in Loop: Header=BB31_2 Depth=1
+	movl	16(%ebp), %eax
+	cmpl	%eax, 16(%edx)
+	jne	LBB31_27
+# BB#4:                                 # %land.lhs.true4
+                                        #   in Loop: Header=BB31_2 Depth=1
+	movl	20(%edx), %eax
+	movl	16(%ebp), %ecx
+	movl	%ecx, 8(%esp)
+	movl	12(%ebp), %ecx
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	movl	%edx, %esi
+	calll	__ZN6Halide7Runtime8Internal10keys_equalEPKhS3_j
+	movl	%esi, %edx
+	testb	%al, %al
+	je	LBB31_27
+# BB#5:                                 # %land.lhs.true6
+                                        #   in Loop: Header=BB31_2 Depth=1
+	leal	32(%edx), %eax
+	movl	20(%ebp), %ecx
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	movl	%edx, %esi
+	calll	__ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_
+	movl	%esi, %edx
+	testb	%al, %al
+	je	LBB31_27
+# BB#6:                                 # %land.lhs.true9
+                                        #   in Loop: Header=BB31_2 Depth=1
+	cmpl	%edi, 28(%edx)
+	jne	LBB31_27
+# BB#7:                                 # %if.then
+                                        #   in Loop: Header=BB31_2 Depth=1
+	xorl	%esi, %esi
+	movl	28(%ebp), %ebx
+	testl	%edi, %edi
+	jle	LBB31_11
+	.align	16, 0x90
+LBB31_8:                                # %for.body
+                                        #   Parent Loop BB31_2 Depth=1
+                                        # =>  This Inner Loop Header: Depth=2
+	movl	(%ebx), %eax
+	movl	%eax, 24(%esp)          # 4-byte Spill
+	movl	%esi, 4(%esp)
+	movl	%edx, (%esp)
+	movl	%edx, %edi
+	calll	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	movl	24(%esp), %ecx          # 4-byte Reload
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_
+	movl	%edi, %edx
+	movl	24(%ebp), %edi
+	testb	%al, %al
+	je	LBB31_10
+# BB#9:                                 # %for.body
+                                        #   in Loop: Header=BB31_8 Depth=2
+	incl	%esi
+	addl	$4, %ebx
+	cmpl	%edi, %esi
+	jl	LBB31_8
+LBB31_10:                               # %for.end
+                                        #   in Loop: Header=BB31_2 Depth=1
+	testb	%al, %al
+	jne	LBB31_11
+	.align	16, 0x90
+LBB31_27:                               # %if.end57
+                                        #   in Loop: Header=BB31_2 Depth=1
+	movl	4(%edx), %edx
+	movl	%edx, 28(%esp)
+	testl	%edx, %edx
+	jne	LBB31_2
+# BB#28:
+	leal	32(%esp), %ebx
+	movl	%ebx, %edi
+LBB31_29:                               # %cleanup
+	movl	%edi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev
+	movl	16(%esp), %eax          # 4-byte Reload
+	movzbl	%al, %eax
+	leal	-12(%ebp), %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+LBB31_11:                               # %if.then17
+	cmpl	__ZN6Halide7Runtime8Internal18most_recently_usedE, %edx
+	je	LBB31_12
+# BB#13:                                # %if.then19
+	cmpl	$0, 8(%edx)
+	jne	LBB31_15
+# BB#14:                                # %if.then21
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str440, 4(%esp)
+	movl	%edx, %esi
+	calll	_halide_error
+	movl	%esi, %edx
+LBB31_15:                               # %if.end
+	movl	12(%edx), %eax
+	testl	%eax, %eax
+	je	LBB31_17
+# BB#16:                                # %if.then23
+	movl	8(%edx), %ecx
+	movl	%ecx, 8(%eax)
+	jmp	LBB31_20
+LBB31_12:
+	movl	28(%ebp), %ebx
+	jmp	LBB31_25
+LBB31_17:                               # %if.else
+	cmpl	%edx, __ZN6Halide7Runtime8Internal19least_recently_usedE
+	movl	8(%ebp), %eax
+	je	LBB31_19
+# BB#18:                                # %if.then28
+	movl	%eax, (%esp)
+	movl	$L_.str541, 4(%esp)
+	movl	%edx, %esi
+	calll	_halide_error
+	movl	%esi, %edx
+LBB31_19:                               # %if.end29
+	movl	8(%edx), %eax
+	movl	%eax, __ZN6Halide7Runtime8Internal19least_recently_usedE
+LBB31_20:                               # %if.end31
+	movl	28(%ebp), %ebx
+	movl	8(%edx), %eax
+	testl	%eax, %eax
+	jne	LBB31_22
+# BB#21:                                # %if.then34
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str440, 4(%esp)
+	movl	%edx, %esi
+	calll	_halide_error
+	movl	%esi, %edx
+	movl	8(%edx), %eax
+LBB31_22:                               # %if.end35
+	movl	12(%edx), %ecx
+	movl	%ecx, 12(%eax)
+	movl	28(%esp), %edx
+	movl	$0, 8(%edx)
+	movl	__ZN6Halide7Runtime8Internal18most_recently_usedE, %eax
+	movl	%eax, 12(%edx)
+	movl	__ZN6Halide7Runtime8Internal18most_recently_usedE, %eax
+	testl	%eax, %eax
+	je	LBB31_24
+# BB#23:                                # %if.then42
+	movl	%edx, 8(%eax)
+LBB31_24:                               # %if.end44
+	movl	%edx, __ZN6Halide7Runtime8Internal18most_recently_usedE
+LBB31_25:                               # %for.cond47.preheader
+	xorl	%esi, %esi
+	movl	$0, 16(%esp)            # 4-byte Folded Spill
+	testl	%edi, %edi
+	leal	32(%esp), %edi
+	jle	LBB31_29
+	.align	16, 0x90
+LBB31_26:                               # %for.body49
+                                        # =>This Inner Loop Header: Depth=1
+	movl	(%ebx), %eax
+	movl	%eax, 24(%esp)          # 4-byte Spill
+	movl	%esi, 4(%esp)
+	movl	%edx, (%esp)
+	movl	%ebx, %edi
+	movl	%edx, %ebx
+	calll	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	movl	24(%esp), %ecx          # 4-byte Reload
+	movl	%ecx, 8(%esp)
+	movl	%eax, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal12copy_from_toEPvRK8buffer_tRS3_
+	movl	%ebx, %edx
+	movl	%edi, %ebx
+	leal	32(%esp), %edi
+	movl	24(%ebp), %eax
+	incl	%esi
+	addl	$4, %ebx
+	movl	$0, 16(%esp)            # 4-byte Folded Spill
+	cmpl	%eax, %esi
+	jl	LBB31_26
+	jmp	LBB31_29
+
+	.def	 _halide_memoization_cache_store;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_memoization_cache_store
+	.globl	_halide_memoization_cache_store
+	.align	16, 0x90
+_halide_memoization_cache_store:        # @halide_memoization_cache_store
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	andl	$-8, %esp
+	subl	$56, %esp
+	movl	16(%ebp), %ecx
+	movl	12(%ebp), %eax
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal8djb_hashEPKhj
+	movl	%eax, 40(%esp)          # 4-byte Spill
+	movzbl	%al, %esi
+	movl	%esi, 36(%esp)          # 4-byte Spill
+	leal	48(%esp), %eax
+	movl	%eax, (%esp)
+	movl	$__ZN6Halide7Runtime8Internal16memoization_lockE, 4(%esp)
+	calll	__ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex
+	movl	__ZN6Halide7Runtime8Internal13cache_entriesE(,%esi,4), %esi
+	jmp	LBB32_1
+	.align	16, 0x90
+LBB32_11:                               # %if.end18
+                                        #   in Loop: Header=BB32_1 Depth=1
+	movl	4(%esi), %esi
+LBB32_1:                                # %entry
+                                        # =>This Loop Header: Depth=1
+                                        #     Child Loop BB32_8 Depth 2
+	testl	%esi, %esi
+	je	LBB32_12
+# BB#2:                                 # %while.body
+                                        #   in Loop: Header=BB32_1 Depth=1
+	movl	40(%esp), %eax          # 4-byte Reload
+	cmpl	%eax, 24(%esi)
+	jne	LBB32_11
+# BB#3:                                 # %land.lhs.true
+                                        #   in Loop: Header=BB32_1 Depth=1
+	movl	16(%ebp), %eax
+	cmpl	%eax, 16(%esi)
+	jne	LBB32_11
+# BB#4:                                 # %land.lhs.true4
+                                        #   in Loop: Header=BB32_1 Depth=1
+	movl	20(%esi), %eax
+	movl	16(%ebp), %ecx
+	movl	%ecx, 8(%esp)
+	movl	12(%ebp), %ecx
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10keys_equalEPKhS3_j
+	testb	%al, %al
+	je	LBB32_11
+# BB#5:                                 # %land.lhs.true6
+                                        #   in Loop: Header=BB32_1 Depth=1
+	leal	32(%esi), %eax
+	movl	20(%ebp), %ecx
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_
+	testb	%al, %al
+	je	LBB32_11
+# BB#6:                                 # %land.lhs.true9
+                                        #   in Loop: Header=BB32_1 Depth=1
+	movl	24(%ebp), %eax
+	cmpl	%eax, 28(%esi)
+	jne	LBB32_11
+# BB#7:                                 # %if.then
+                                        #   in Loop: Header=BB32_1 Depth=1
+	xorl	%edi, %edi
+	movl	28(%ebp), %ebx
+	cmpl	$0, 24(%ebp)
+	jle	LBB32_21
+	.align	16, 0x90
+LBB32_8:                                # %for.body
+                                        #   Parent Loop BB32_1 Depth=1
+                                        # =>  This Inner Loop Header: Depth=2
+	movl	(%ebx), %eax
+	movl	%eax, 44(%esp)          # 4-byte Spill
+	movl	%edi, 4(%esp)
+	movl	%esi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	movl	44(%esp), %ecx          # 4-byte Reload
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal12bounds_equalERK8buffer_tS4_
+	testb	%al, %al
+	je	LBB32_10
+# BB#9:                                 # %for.body
+                                        #   in Loop: Header=BB32_8 Depth=2
+	incl	%edi
+	addl	$4, %ebx
+	cmpl	24(%ebp), %edi
+	jl	LBB32_8
+LBB32_10:                               # %for.end
+                                        #   in Loop: Header=BB32_1 Depth=1
+	testb	%al, %al
+	je	LBB32_11
+	jmp	LBB32_21
+LBB32_12:                               # %while.end
+	xorl	%eax, %eax
+	cmpl	$0, 24(%ebp)
+	jle	LBB32_13
+# BB#14:
+	movl	28(%ebp), %ebx
+	xorl	%esi, %esi
+	xorl	%ecx, %ecx
+	.align	16, 0x90
+LBB32_15:                               # %for.body22
+                                        # =>This Inner Loop Header: Depth=1
+	movl	%ecx, 44(%esp)          # 4-byte Spill
+	movl	%eax, %edi
+	movl	(%ebx), %eax
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal11full_extentERK8buffer_t
+	movl	44(%esp), %ecx          # 4-byte Reload
+	addl	%eax, %edi
+	movl	%edi, %eax
+	adcl	$0, %ecx
+	incl	%esi
+	addl	$4, %ebx
+	cmpl	24(%ebp), %esi
+	jl	LBB32_15
+	jmp	LBB32_16
+LBB32_13:
+	xorl	%ecx, %ecx
+LBB32_16:                               # %for.end28
+	addl	__ZN6Halide7Runtime8Internal18current_cache_sizeE, %eax
+	adcl	%ecx, __ZN6Halide7Runtime8Internal18current_cache_sizeE+4
+	movl	%eax, __ZN6Halide7Runtime8Internal18current_cache_sizeE
+	calll	__ZN6Halide7Runtime8Internal11prune_cacheEv
+	movl	24(%ebp), %eax
+	movl	%eax, %ebx
+	imull	$68, %ebx, %eax
+	addl	$100, %eax
+	movl	%eax, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, %edi
+	movl	%edi, (%esp)
+	calll	_halide_malloc
+	movl	%eax, 4(%esp)
+	movl	$168, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntrynwEjPv
+	movl	%eax, %esi
+	movl	28(%ebp), %eax
+	movl	%eax, 28(%esp)
+	movl	%ebx, 24(%esp)
+	movl	20(%ebp), %eax
+	movl	%eax, 20(%esp)
+	movl	40(%esp), %eax          # 4-byte Reload
+	movl	%eax, 16(%esp)
+	movl	16(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	12(%ebp), %eax
+	movl	%eax, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%esi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntryC2EPvPKhjjRK8buffer_tiPPS6_
+	movl	36(%esp), %ecx          # 4-byte Reload
+	movl	__ZN6Halide7Runtime8Internal13cache_entriesE(,%ecx,4), %eax
+	movl	%eax, 4(%esi)
+	movl	__ZN6Halide7Runtime8Internal18most_recently_usedE, %eax
+	movl	%eax, 12(%esi)
+	movl	__ZN6Halide7Runtime8Internal18most_recently_usedE, %eax
+	testl	%eax, %eax
+	je	LBB32_18
+# BB#17:                                # %if.then36
+	movl	%esi, 8(%eax)
+LBB32_18:                               # %if.end37
+	movl	%esi, __ZN6Halide7Runtime8Internal18most_recently_usedE
+	cmpl	$0, __ZN6Halide7Runtime8Internal19least_recently_usedE
+	jne	LBB32_20
+# BB#19:                                # %if.then39
+	movl	%esi, __ZN6Halide7Runtime8Internal19least_recently_usedE
+LBB32_20:                               # %if.end40
+	movl	%esi, __ZN6Halide7Runtime8Internal13cache_entriesE(,%ecx,4)
+LBB32_21:                               # %cleanup
+	leal	48(%esp), %eax
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev
+	leal	-12(%ebp), %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 _halide_memoization_cache_cleanup;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_memoization_cache_cleanup
+	.globl	_halide_memoization_cache_cleanup
+	.align	16, 0x90
+_halide_memoization_cache_cleanup:      # @halide_memoization_cache_cleanup
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	subl	$12, %esp
+	xorl	%esi, %esi
+	.align	16, 0x90
+LBB33_1:                                # %for.body
+                                        # =>This Loop Header: Depth=1
+                                        #     Child Loop BB33_2 Depth 2
+	movl	__ZN6Halide7Runtime8Internal13cache_entriesE(,%esi,4), %eax
+	movl	%eax, -12(%ebp)
+	movl	$0, __ZN6Halide7Runtime8Internal13cache_entriesE(,%esi,4)
+	testl	%eax, %eax
+	je	LBB33_3
+	.align	16, 0x90
+LBB33_2:                                # %while.body
+                                        #   Parent Loop BB33_1 Depth=1
+                                        # =>  This Inner Loop Header: Depth=2
+	movl	4(%eax), %edi
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntryD2Ev
+	movl	-12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$0, (%esp)
+	calll	_halide_free
+	movl	%edi, -12(%ebp)
+	movl	%edi, %eax
+	testl	%edi, %edi
+	jne	LBB33_2
+LBB33_3:                                # %for.inc
+                                        #   in Loop: Header=BB33_1 Depth=1
+	incl	%esi
+	cmpl	$256, %esi              # imm = 0x100
+	jb	LBB33_1
+# BB#4:                                 # %for.end
+	movl	$0, __ZN6Halide7Runtime8Internal18current_cache_sizeE+4
+	movl	$0, __ZN6Halide7Runtime8Internal18current_cache_sizeE
+	movl	$__ZN6Halide7Runtime8Internal16memoization_lockE, (%esp)
+	calll	_halide_mutex_cleanup
+	addl	$12, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal10CacheEntry6bufferEi;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	.globl	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi: # @_ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	imull	$72, 12(%ebp), %ecx
+	leal	104(%eax,%ecx), %eax
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal10CacheEntryD2Ev;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal10CacheEntryD2Ev
+	.globl	__ZN6Halide7Runtime8Internal10CacheEntryD2Ev
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal10CacheEntryD2Ev: # @_ZN6Halide7Runtime8Internal10CacheEntryD2Ev
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	subl	$8, %esp
+	movl	8(%ebp), %esi
+	movl	(%esi), %eax
+	movl	20(%esi), %ecx
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	_halide_free
+	cmpl	$0, 28(%esi)
+	je	LBB35_3
+# BB#1:
+	xorl	%edi, %edi
+	.align	16, 0x90
+LBB35_2:                                # %for.body
+                                        # =>This Inner Loop Header: Depth=1
+	movl	(%esi), %ebx
+	movl	%edi, 4(%esp)
+	movl	%esi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	movl	%eax, 4(%esp)
+	movl	%ebx, (%esp)
+	calll	_halide_dev_free
+	movl	(%esi), %ebx
+	movl	%edi, 4(%esp)
+	movl	%esi, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	movl	8(%eax), %eax
+	movl	%eax, 4(%esp)
+	movl	%ebx, (%esp)
+	calll	_halide_free
+	incl	%edi
+	cmpl	28(%esi), %edi
+	jb	LBB35_2
+LBB35_3:                                # %for.end
+	addl	$8, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex
+	.globl	__ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex: # @_ZN6Halide7Runtime8Internal15ScopedMutexLockC2EP12halide_mutex
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%eax
+	movl	12(%ebp), %eax
+	movl	8(%ebp), %ecx
+	movl	%eax, (%ecx)
+	movl	%eax, (%esp)
+	calll	_halide_mutex_lock
+	addl	$4, %esp
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev
+	.globl	__ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev: # @_ZN6Halide7Runtime8Internal15ScopedMutexLockD2Ev
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%eax
+	movl	8(%ebp), %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	calll	_halide_mutex_unlock
+	addl	$4, %esp
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal10CacheEntrynwEjPv;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal10CacheEntrynwEjPv
+	.globl	__ZN6Halide7Runtime8Internal10CacheEntrynwEjPv
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal10CacheEntrynwEjPv: # @_ZN6Halide7Runtime8Internal10CacheEntrynwEjPv
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	12(%ebp), %eax
+	popl	%ebp
+	retl
+
+	.def	 __ZN6Halide7Runtime8Internal10CacheEntryC2EPvPKhjjRK8buffer_tiPPS6_;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,__ZN6Halide7Runtime8Internal10CacheEntryC2EPvPKhjjRK8buffer_tiPPS6_
+	.globl	__ZN6Halide7Runtime8Internal10CacheEntryC2EPvPKhjjRK8buffer_tiPPS6_
+	.align	16, 0x90
+__ZN6Halide7Runtime8Internal10CacheEntryC2EPvPKhjjRK8buffer_tiPPS6_: # @_ZN6Halide7Runtime8Internal10CacheEntryC2EPvPKhjjRK8buffer_tiPPS6_
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	andl	$-8, %esp
+	subl	$96, %esp
+	movl	8(%ebp), %ebx
+	movl	32(%ebp), %eax
+	movl	24(%ebp), %ecx
+	movl	20(%ebp), %edx
+	movl	12(%ebp), %esi
+	movl	28(%ebp), %edi
+	movl	%edi, 88(%esp)
+	movl	%esi, (%ebx)
+	movl	$0, 4(%ebx)
+	movl	$0, 8(%ebx)
+	movl	$0, 12(%ebx)
+	movl	%edx, 16(%ebx)
+	movl	%ecx, 24(%ebx)
+	movl	%eax, 28(%ebx)
+	movl	(%ebx), %eax
+	movl	16(%ebx), %ecx
+	movl	%ecx, 4(%esp)
+	movl	%eax, (%esp)
+	calll	_halide_malloc
+	movl	%eax, 20(%ebx)
+	movl	88(%esp), %eax
+	vmovups	(%eax), %xmm0
+	vmovups	16(%eax), %xmm1
+	vmovups	%xmm1, 48(%ebx)
+	vmovups	%xmm0, 32(%ebx)
+	vmovups	48(%eax), %xmm0
+	vmovups	%xmm0, 80(%ebx)
+	vmovups	32(%eax), %xmm0
+	vmovups	%xmm0, 64(%ebx)
+	movl	64(%eax), %eax
+	movl	%eax, 96(%ebx)
+	movl	$0, 40(%ebx)
+	movl	$0, 36(%ebx)
+	movl	$0, 32(%ebx)
+	cmpl	$0, 16(%ebx)
+	je	LBB39_3
+# BB#1:
+	movl	16(%ebp), %eax
+	xorl	%ecx, %ecx
+	.align	16, 0x90
+LBB39_2:                                # %for.body
+                                        # =>This Inner Loop Header: Depth=1
+	movb	(%eax,%ecx), %dl
+	movl	20(%ebx), %esi
+	movb	%dl, (%esi,%ecx)
+	incl	%ecx
+	cmpl	16(%ebx), %ecx
+	jb	LBB39_2
+LBB39_3:                                # %for.cond11.preheader
+	cmpl	$0, 28(%ebx)
+	movl	%ebx, %eax
+	je	LBB39_6
+# BB#4:                                 # %for.body14.lr.ph
+	movl	36(%ebp), %ebx
+	xorl	%edi, %edi
+	.align	16, 0x90
+LBB39_5:                                # %for.body14
+                                        # =>This Inner Loop Header: Depth=1
+	movl	(%ebx), %ecx
+	movl	%ecx, 12(%esp)          # 4-byte Spill
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal10CacheEntry6bufferEi
+	movl	%eax, %esi
+	movl	8(%ebp), %eax
+	movl	(%eax), %eax
+	movl	12(%esp), %ecx          # 4-byte Reload
+	movl	%ecx, 8(%esp)
+	movl	%eax, 4(%esp)
+	leal	16(%esp), %eax
+	movl	%eax, (%esp)
+	calll	__ZN6Halide7Runtime8Internal14copy_of_bufferEPvRK8buffer_t
+	vmovups	16(%esp), %xmm0
+	vmovups	32(%esp), %xmm1
+	vmovups	%xmm1, 16(%esi)
+	vmovups	%xmm0, (%esi)
+	vmovups	64(%esp), %xmm0
+	vmovups	%xmm0, 48(%esi)
+	vmovups	48(%esp), %xmm0
+	vmovups	%xmm0, 32(%esi)
+	movl	80(%esp), %eax
+	movl	%eax, 64(%esi)
+	movl	8(%ebp), %eax
+	incl	%edi
+	addl	$4, %ebx
+	cmpl	28(%eax), %edi
+	jb	LBB39_5
+LBB39_6:                                # %for.end21
+	leal	-12(%ebp), %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 _halide_string_to_string;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_string_to_string
+	.globl	_halide_string_to_string
+	.align	16, 0x90
+_halide_string_to_string:               # @halide_string_to_string
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	16(%ebp), %edx
+	movl	12(%ebp), %ecx
+	movl	8(%ebp), %eax
+	movl	%eax, -4(%ebp)
+	movl	%edx, -8(%ebp)
+	cmpl	%ecx, %eax
+	jae	LBB40_3
+# BB#1:                                 # %while.body.preheader
+	je	LBB40_2
+	.align	16, 0x90
+LBB40_4:                                # %if.end3
+                                        # =>This Inner Loop Header: Depth=1
+	movb	(%edx), %dl
+	movb	%dl, (%eax)
+	testb	%dl, %dl
+	je	LBB40_3
+# BB#5:                                 # %if.end6
+                                        #   in Loop: Header=BB40_4 Depth=1
+	incl	%eax
+	movl	%eax, -4(%ebp)
+	movl	-8(%ebp), %edx
+	incl	%edx
+	movl	%edx, -8(%ebp)
+	cmpl	%eax, %ecx
+	jne	LBB40_4
+# BB#6:
+	movl	%ecx, %eax
+LBB40_2:                                # %if.then2
+	movb	$0, -1(%eax)
+	movl	-4(%ebp), %eax
+LBB40_3:                                # %return
+	addl	$8, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_uint64_to_string;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_uint64_to_string
+	.globl	_halide_uint64_to_string
+	.align	16, 0x90
+_halide_uint64_to_string:               # @halide_uint64_to_string
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	subl	$64, %esp
+	movl	20(%ebp), %edx
+	movl	16(%ebp), %eax
+	movl	12(%ebp), %edi
+	movl	8(%ebp), %ecx
+	movl	%ecx, -16(%ebp)
+	movl	%edi, -20(%ebp)
+	movb	$0, -21(%ebp)
+	leal	-22(%ebp), %esi
+	movl	%esi, -56(%ebp)         # 4-byte Spill
+	cmpl	$0, 24(%ebp)
+	movl	$1, %ebx
+	jg	LBB41_2
+# BB#1:                                 # %entry
+	movl	%eax, %esi
+	orl	%edx, %esi
+	je	LBB41_7
+	.align	16, 0x90
+LBB41_2:                                # %for.body
+                                        # =>This Inner Loop Header: Depth=1
+	movl	%edx, -60(%ebp)         # 4-byte Spill
+	movl	%eax, %esi
+	movl	%edx, 4(%esp)
+	movl	%esi, (%esp)
+	movl	$0, 12(%esp)
+	movl	$10, 8(%esp)
+	calll	__aulldiv
+	subl	$16, %esp
+	imull	$-10, %eax, %ecx
+	leal	48(%esi,%ecx), %ecx
+	movl	%ebx, %edi
+	movl	-56(%ebp), %ebx         # 4-byte Reload
+	movb	%cl, (%ebx)
+	decl	%ebx
+	movl	%ebx, -56(%ebp)         # 4-byte Spill
+	movl	%edi, %ebx
+	cmpl	24(%ebp), %ebx
+	leal	1(%ebx), %ebx
+	jl	LBB41_2
+# BB#3:                                 # %for.body
+                                        #   in Loop: Header=BB41_2 Depth=1
+	cmpl	$9, %esi
+	seta	%cl
+	cmpl	$0, -60(%ebp)           # 4-byte Folded Reload
+	setne	%ch
+	je	LBB41_5
+# BB#4:                                 # %for.body
+                                        #   in Loop: Header=BB41_2 Depth=1
+	movb	%ch, %cl
+LBB41_5:                                # %for.body
+                                        #   in Loop: Header=BB41_2 Depth=1
+	testb	%cl, %cl
+	jne	LBB41_2
+# BB#6:                                 # %for.cond.for.end_crit_edge
+	movl	-16(%ebp), %ecx
+	movl	-20(%ebp), %edi
+LBB41_7:                                # %for.end
+	movl	-56(%ebp), %eax         # 4-byte Reload
+	incl	%eax
+	movl	%eax, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%ecx, (%esp)
+	calll	_halide_string_to_string
+	addl	$64, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 _halide_int64_to_string;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_int64_to_string
+	.globl	_halide_int64_to_string
+	.align	16, 0x90
+_halide_int64_to_string:                # @halide_int64_to_string
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	subl	$20, %esp
+	movl	20(%ebp), %esi
+	movl	16(%ebp), %eax
+	movl	24(%ebp), %edi
+	movl	12(%ebp), %ecx
+	movl	8(%ebp), %edx
+	testl	%esi, %esi
+	jns	LBB42_3
+# BB#1:                                 # %entry
+	cmpl	%ecx, %edx
+	ja	LBB42_3
+# BB#2:                                 # %if.then
+	movb	$45, (%edx)
+	incl	%edx
+	xorl	%ebx, %ebx
+	negl	%eax
+	sbbl	%esi, %ebx
+	movl	%ebx, %esi
+LBB42_3:                                # %if.end
+	movl	%edi, 16(%esp)
+	movl	%esi, 12(%esp)
+	movl	%eax, 8(%esp)
+	movl	%ecx, 4(%esp)
+	movl	%edx, (%esp)
+	calll	_halide_uint64_to_string
+	addl	$20, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+
+	.def	 _halide_copy_to_host;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_copy_to_host
+	.globl	_halide_copy_to_host
+	.align	16, 0x90
+_halide_copy_to_host:                   # @halide_copy_to_host
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	xorl	%eax, %eax
+	popl	%ebp
+	retl
+
+	.def	 _halide_copy_to_dev;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_copy_to_dev
+	.globl	_halide_copy_to_dev
+	.align	16, 0x90
+_halide_copy_to_dev:                    # @halide_copy_to_dev
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str65, 4(%esp)
+	calll	_halide_error
+	movl	$-1, %eax
+	addl	$8, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_dev_malloc;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_dev_malloc
+	.globl	_halide_dev_malloc
+	.align	16, 0x90
+_halide_dev_malloc:                     # @halide_dev_malloc
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_.str65, 4(%esp)
+	calll	_halide_error
+	movl	$-1, %eax
+	addl	$8, %esp
+	popl	%ebp
+	retl
+
+	.def	 _halide_dev_free;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_dev_free
+	.globl	_halide_dev_free
+	.align	16, 0x90
+_halide_dev_free:                       # @halide_dev_free
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	xorl	%eax, %eax
+	popl	%ebp
+	retl
+
+	.def	 _halide_release;
+	.scl	2;
+	.type	32;
+	.endef
+	.section	.text,"xr",discard,_halide_release
+	.globl	_halide_release
+	.align	16, 0x90
+_halide_release:                        # @halide_release
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	popl	%ebp
+	retl
+
+	.def	 _f0;
+	.scl	2;
+	.type	32;
+	.endef
+	.text
+	.globl	_f0
+	.align	16, 0x90
+_f0:                                    # @f0
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%edi
+	pushl	%esi
+	subl	$2144, %esp             # imm = 0x860
+	movl	12(%ebp), %eax
+	testl	%eax, %eax
+	je	LBB48_1
+# BB#3:                                 # %assert succeeded
+	movl	16(%ebp), %edi
+	movl	8(%eax), %edx
+	movl	%edx, -2004(%ebp)       # 4-byte Spill
+	movl	(%eax), %ecx
+	orl	4(%eax), %ecx
+	orl	%edx, %ecx
+	sete	-2024(%ebp)             # 1-byte Folded Spill
+	testl	%edi, %edi
+	je	LBB48_4
+# BB#5:                                 # %assert succeeded13
+	movl	20(%ebp), %edx
+	movl	8(%edi), %ebx
+	movl	%ebx, -2008(%ebp)       # 4-byte Spill
+	movl	(%edi), %ecx
+	orl	4(%edi), %ecx
+	orl	%ebx, %ecx
+	sete	-2028(%ebp)             # 1-byte Folded Spill
+	testl	%edx, %edx
+	je	LBB48_6
+# BB#7:                                 # %assert succeeded32
+	movl	24(%ebp), %edi
+	movl	8(%edx), %ebx
+	movl	%ebx, -2012(%ebp)       # 4-byte Spill
+	movl	(%edx), %ecx
+	orl	4(%edx), %ecx
+	orl	%ebx, %ecx
+	sete	-2064(%ebp)             # 1-byte Folded Spill
+	testl	%edi, %edi
+	je	LBB48_8
+# BB#9:                                 # %assert succeeded51
+	movl	12(%eax), %ecx
+	movl	%ecx, -2092(%ebp)       # 4-byte Spill
+	movl	16(%eax), %ecx
+	movl	%ecx, -2088(%ebp)       # 4-byte Spill
+	movl	28(%eax), %ecx
+	movl	%ecx, -2120(%ebp)       # 4-byte Spill
+	movl	32(%eax), %ecx
+	movl	%ecx, -2048(%ebp)       # 4-byte Spill
+	movl	8(%edi), %ebx
+	movl	%ebx, -2016(%ebp)       # 4-byte Spill
+	movl	(%edi), %ecx
+	orl	4(%edi), %ecx
+	orl	%ebx, %ecx
+	movl	44(%eax), %ecx
+	movl	%ecx, -2068(%ebp)       # 4-byte Spill
+	sete	-2096(%ebp)             # 1-byte Folded Spill
+	movl	48(%eax), %ecx
+	movl	%ecx, -2108(%ebp)       # 4-byte Spill
+	movl	60(%eax), %ecx
+	movl	%ecx, -2040(%ebp)       # 4-byte Spill
+	movl	16(%ebp), %ecx
+	movl	%ecx, %ebx
+	movl	12(%ebx), %ecx
+	movl	%ecx, -2084(%ebp)       # 4-byte Spill
+	movl	16(%ebx), %ecx
+	movl	%ecx, -2080(%ebp)       # 4-byte Spill
+	movl	28(%ebx), %ecx
+	movl	%ecx, -2128(%ebp)       # 4-byte Spill
+	movl	32(%ebx), %ecx
+	movl	%ecx, -2052(%ebp)       # 4-byte Spill
+	movl	44(%ebx), %ecx
+	movl	%ecx, -2100(%ebp)       # 4-byte Spill
+	movl	48(%ebx), %ecx
+	movl	%ecx, -2104(%ebp)       # 4-byte Spill
+	movl	60(%ebx), %ecx
+	movl	%ecx, -2036(%ebp)       # 4-byte Spill
+	movl	12(%edx), %ecx
+	movl	%ecx, -2076(%ebp)       # 4-byte Spill
+	movl	16(%edx), %ecx
+	movl	%ecx, -2072(%ebp)       # 4-byte Spill
+	movl	28(%edx), %ecx
+	movl	%ecx, -2124(%ebp)       # 4-byte Spill
+	movl	32(%edx), %ecx
+	movl	%ecx, -2056(%ebp)       # 4-byte Spill
+	movl	44(%edx), %ecx
+	movl	%ecx, -2112(%ebp)       # 4-byte Spill
+	movl	48(%edx), %ecx
+	movl	%ecx, -2116(%ebp)       # 4-byte Spill
+	movl	60(%edx), %ecx
+	movl	%ecx, -2032(%ebp)       # 4-byte Spill
+	movl	12(%edi), %ecx
+	movl	%ecx, -2044(%ebp)       # 4-byte Spill
+	movl	16(%edi), %ecx
+	movl	%ecx, -2020(%ebp)       # 4-byte Spill
+	movl	28(%edi), %ecx
+	movl	%ecx, -2132(%ebp)       # 4-byte Spill
+	movl	32(%edi), %ecx
+	movl	%ecx, -2060(%ebp)       # 4-byte Spill
+	movl	44(%edi), %ecx
+	movl	%ecx, -2000(%ebp)       # 4-byte Spill
+	movl	48(%edi), %ebx
+	movl	60(%edi), %ecx
+	movl	%ecx, -2136(%ebp)       # 4-byte Spill
+	jne	LBB48_11
+# BB#10:                                # %true_bb
+	movl	$1, 60(%edi)
+	movl	-2000(%ebp), %ecx       # 4-byte Reload
+	movl	%ecx, 44(%edi)
+	movl	-2044(%ebp), %ecx       # 4-byte Reload
+	movl	%ecx, 12(%edi)
+	movl	$3, 28(%edi)
+	movl	%ebx, 48(%edi)
+	movl	-2020(%ebp), %edx       # 4-byte Reload
+	movl	%edx, 16(%edi)
+	movl	20(%ebp), %edx
+	movl	%ecx, 32(%edi)
+	movl	$0, 52(%edi)
+	movl	$0, 20(%edi)
+	movl	$0, 36(%edi)
+	movl	$0, 56(%edi)
+	movl	$0, 24(%edi)
+	movl	$0, 40(%edi)
+LBB48_11:                               # %after_bb
+	cmpb	$0, -2024(%ebp)         # 1-byte Folded Reload
+	movl	%ebx, %edi
+	je	LBB48_13
+# BB#12:                                # %true_bb80
+	movl	$1, 60(%eax)
+	movl	-2000(%ebp), %ecx       # 4-byte Reload
+	movl	%ecx, 44(%eax)
+	movl	-2044(%ebp), %ecx       # 4-byte Reload
+	movl	%ecx, 12(%eax)
+	movl	$3, 28(%eax)
+	movl	%edi, 48(%eax)
+	movl	%edx, %ebx
+	movl	-2020(%ebp), %edx       # 4-byte Reload
+	movl	%edx, 16(%eax)
+	movl	%ebx, %edx
+	movl	%ecx, 32(%eax)
+	movl	$0, 52(%eax)
+	movl	$0, 20(%eax)
+	movl	$0, 36(%eax)
+	movl	$0, 56(%eax)
+	movl	$0, 24(%eax)
+	movl	$0, 40(%eax)
+LBB48_13:                               # %after_bb82
+	cmpb	$0, -2028(%ebp)         # 1-byte Folded Reload
+	je	LBB48_15
+# BB#14:                                # %true_bb96
+	movl	16(%ebp), %eax
+	movl	%eax, %ebx
+	movl	$1, 60(%ebx)
+	movl	-2000(%ebp), %eax       # 4-byte Reload
+	movl	%eax, 44(%ebx)
+	movl	-2044(%ebp), %eax       # 4-byte Reload
+	movl	%eax, 12(%ebx)
+	movl	$3, 28(%ebx)
+	movl	%edi, 48(%ebx)
+	movl	-2020(%ebp), %ecx       # 4-byte Reload
+	movl	%ecx, 16(%ebx)
+	movl	%eax, 32(%ebx)
+	movl	$0, 52(%ebx)
+	movl	$0, 20(%ebx)
+	movl	$0, 36(%ebx)
+	movl	$0, 56(%ebx)
+	movl	$0, 24(%ebx)
+	movl	$0, 40(%ebx)
+LBB48_15:                               # %after_bb98
+	cmpb	$0, -2064(%ebp)         # 1-byte Folded Reload
+	movl	-2032(%ebp), %ebx       # 4-byte Reload
+	movl	-2036(%ebp), %eax       # 4-byte Reload
+	movl	-2040(%ebp), %ecx       # 4-byte Reload
+	je	LBB48_19
+# BB#16:                                # %after_bb114.thread
+	movl	$1, 60(%edx)
+	movl	-2000(%ebp), %eax       # 4-byte Reload
+	movl	%eax, 44(%edx)
+	movl	-2044(%ebp), %eax       # 4-byte Reload
+	movl	%eax, 12(%edx)
+	movl	$3, 28(%edx)
+	movl	%edi, 48(%edx)
+	movl	-2020(%ebp), %ecx       # 4-byte Reload
+	movl	%ecx, 16(%edx)
+	movl	%eax, 32(%edx)
+	movl	$0, 52(%edx)
+	movl	$0, 20(%edx)
+	movl	$0, 36(%edx)
+	movl	$0, 56(%edx)
+	movl	$0, 24(%edx)
+	movl	$0, 40(%edx)
+	jmp	LBB48_17
+LBB48_19:                               # %after_bb114
+	movb	-2096(%ebp), %dl        # 1-byte Reload
+	orb	-2024(%ebp), %dl        # 1-byte Folded Reload
+	orb	-2028(%ebp), %dl        # 1-byte Folded Reload
+	movl	-2068(%ebp), %edx       # 4-byte Reload
+	jne	LBB48_17
+# BB#20:                                # %true_bb128
+	movl	-2136(%ebp), %esi       # 4-byte Reload
+	cmpl	$1, %esi
+	jne	LBB48_21
+# BB#22:                                # %assert succeeded132
+	cmpl	$1, %ecx
+	movl	%ecx, %esi
+	movl	-2100(%ebp), %ecx       # 4-byte Reload
+	jne	LBB48_23
+# BB#24:                                # %assert succeeded134
+	cmpl	$1, %eax
+	jne	LBB48_25
+# BB#26:                                # %assert succeeded136
+	cmpl	$1, %ebx
+	jne	LBB48_27
+# BB#29:                                # %assert succeeded138
+	cmpl	-2000(%ebp), %edx       # 4-byte Folded Reload
+	jg	LBB48_30
+# BB#31:                                # %assert succeeded140
+	movl	-2044(%ebp), %eax       # 4-byte Reload
+	movl	-2000(%ebp), %ebx       # 4-byte Reload
+	leal	(%ebx,%eax), %ebx
+	movl	%ebx, %eax
+	subl	-2092(%ebp), %eax       # 4-byte Folded Reload
+	cmpl	%edx, %eax
+	jg	LBB48_32
+# BB#33:                                # %assert succeeded142
+	movl	-2108(%ebp), %edx       # 4-byte Reload
+	cmpl	%edi, %edx
+	jg	LBB48_34
+# BB#36:                                # %assert succeeded144
+	movl	-2020(%ebp), %eax       # 4-byte Reload
+	leal	(%edi,%eax), %eax
+	movl	%eax, -2064(%ebp)       # 4-byte Spill
+	subl	-2088(%ebp), %eax       # 4-byte Folded Reload
+	cmpl	%edx, %eax
+	jg	LBB48_37
+# BB#39:                                # %assert succeeded146
+	cmpl	-2000(%ebp), %ecx       # 4-byte Folded Reload
+	jg	LBB48_40
+# BB#41:                                # %assert succeeded148
+	movl	%ebx, %eax
+	subl	-2084(%ebp), %eax       # 4-byte Folded Reload
+	cmpl	%ecx, %eax
+	movl	-2112(%ebp), %edx       # 4-byte Reload
+	jg	LBB48_42
+# BB#43:                                # %assert succeeded150
+	movl	-2104(%ebp), %ecx       # 4-byte Reload
+	cmpl	%edi, %ecx
+	jg	LBB48_44
+# BB#45:                                # %assert succeeded152
+	movl	-2064(%ebp), %eax       # 4-byte Reload
+	subl	-2080(%ebp), %eax       # 4-byte Folded Reload
+	cmpl	%ecx, %eax
+	jg	LBB48_46
+# BB#47:                                # %assert succeeded154
+	cmpl	-2000(%ebp), %edx       # 4-byte Folded Reload
+	jg	LBB48_48
+# BB#49:                                # %assert succeeded156
+	movl	%ebx, %eax
+	subl	-2076(%ebp), %eax       # 4-byte Folded Reload
+	cmpl	%edx, %eax
+	jg	LBB48_50
+# BB#51:                                # %assert succeeded158
+	movl	-2116(%ebp), %ecx       # 4-byte Reload
+	cmpl	%edi, %ecx
+	jg	LBB48_52
+# BB#53:                                # %assert succeeded160
+	movl	-2064(%ebp), %eax       # 4-byte Reload
+	subl	-2072(%ebp), %eax       # 4-byte Folded Reload
+	cmpl	%ecx, %eax
+	jg	LBB48_54
+# BB#55:                                # %assert succeeded162
+	cmpl	$3, -2132(%ebp)         # 4-byte Folded Reload
+	jne	LBB48_56
+# BB#57:                                # %assert succeeded164
+	cmpl	$3, -2120(%ebp)         # 4-byte Folded Reload
+	jne	LBB48_58
+# BB#59:                                # %assert succeeded166
+	cmpl	$3, -2128(%ebp)         # 4-byte Folded Reload
+	jne	LBB48_60
+# BB#61:                                # %assert succeeded168
+	cmpl	$3, -2124(%ebp)         # 4-byte Folded Reload
+	jne	LBB48_62
+# BB#63:                                # %assert succeeded170
+	movl	-2020(%ebp), %eax       # 4-byte Reload
+	movl	-2044(%ebp), %ebx       # 4-byte Reload
+	imull	%ebx
+	movl	%edx, -2120(%ebp)       # 4-byte Spill
+	movl	%eax, -2124(%ebp)       # 4-byte Spill
+	movl	-2088(%ebp), %eax       # 4-byte Reload
+	imull	-2092(%ebp)             # 4-byte Folded Reload
+	movl	%edx, -2040(%ebp)       # 4-byte Spill
+	movl	%eax, -2096(%ebp)       # 4-byte Spill
+	movl	-2080(%ebp), %eax       # 4-byte Reload
+	imull	-2084(%ebp)             # 4-byte Folded Reload
+	movl	%edx, -2032(%ebp)       # 4-byte Spill
+	movl	%eax, -2036(%ebp)       # 4-byte Spill
+	movl	-2072(%ebp), %eax       # 4-byte Reload
+	imull	-2076(%ebp)             # 4-byte Folded Reload
+	movl	%eax, -2028(%ebp)       # 4-byte Spill
+	movl	%edx, -2024(%ebp)       # 4-byte Spill
+	movl	$3, %ecx
+	movl	%ebx, %eax
+	imull	%ecx
+	testl	%eax, %eax
+	setns	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_65
+# BB#64:                                # %assert succeeded170
+	movb	%cl, %al
+LBB48_65:                               # %assert succeeded170
+	testb	%al, %al
+	je	LBB48_66
+# BB#67:                                # %assert succeeded172
+	movl	$-2147483648, %ecx      # imm = 0xFFFFFFFF80000000
+	movl	-2060(%ebp), %eax       # 4-byte Reload
+	imull	-2020(%ebp)             # 4-byte Folded Reload
+	cmpl	%ecx, %eax
+	movl	$-2147483648, %ebx      # imm = 0xFFFFFFFF80000000
+	setb	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_69
+# BB#68:                                # %assert succeeded172
+	movb	%cl, %al
+LBB48_69:                               # %assert succeeded172
+	testb	%al, %al
+	je	LBB48_66
+# BB#70:                                # %assert succeeded174
+	cmpl	%ebx, -2124(%ebp)       # 4-byte Folded Reload
+	setb	%al
+	cmpl	$0, -2120(%ebp)         # 4-byte Folded Reload
+	sets	%cl
+	je	LBB48_72
+# BB#71:                                # %assert succeeded174
+	movb	%cl, %al
+LBB48_72:                               # %assert succeeded174
+	testb	%al, %al
+	je	LBB48_73
+# BB#74:                                # %assert succeeded176
+	movl	$3, %ecx
+	movl	-2092(%ebp), %eax       # 4-byte Reload
+	imull	%ecx
+	cmpl	%ebx, %eax
+	setb	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_76
+# BB#75:                                # %assert succeeded176
+	movb	%cl, %al
+LBB48_76:                               # %assert succeeded176
+	testb	%al, %al
+	je	LBB48_77
+# BB#78:                                # %assert succeeded178
+	movl	-2048(%ebp), %eax       # 4-byte Reload
+	imull	-2088(%ebp)             # 4-byte Folded Reload
+	cmpl	%ebx, %eax
+	setb	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_80
+# BB#79:                                # %assert succeeded178
+	movb	%cl, %al
+LBB48_80:                               # %assert succeeded178
+	testb	%al, %al
+	je	LBB48_77
+# BB#81:                                # %assert succeeded180
+	cmpl	%ebx, -2096(%ebp)       # 4-byte Folded Reload
+	setb	%al
+	cmpl	$0, -2040(%ebp)         # 4-byte Folded Reload
+	sets	%cl
+	je	LBB48_83
+# BB#82:                                # %assert succeeded180
+	movb	%cl, %al
+LBB48_83:                               # %assert succeeded180
+	testb	%al, %al
+	je	LBB48_84
+# BB#85:                                # %assert succeeded182
+	movl	$3, %ecx
+	movl	-2084(%ebp), %eax       # 4-byte Reload
+	imull	%ecx
+	cmpl	%ebx, %eax
+	setb	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_87
+# BB#86:                                # %assert succeeded182
+	movb	%cl, %al
+LBB48_87:                               # %assert succeeded182
+	testb	%al, %al
+	je	LBB48_88
+# BB#89:                                # %assert succeeded184
+	movl	-2052(%ebp), %eax       # 4-byte Reload
+	imull	-2080(%ebp)             # 4-byte Folded Reload
+	cmpl	%ebx, %eax
+	setb	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_91
+# BB#90:                                # %assert succeeded184
+	movb	%cl, %al
+LBB48_91:                               # %assert succeeded184
+	testb	%al, %al
+	je	LBB48_88
+# BB#92:                                # %assert succeeded186
+	cmpl	%ebx, -2036(%ebp)       # 4-byte Folded Reload
+	setb	%al
+	cmpl	$0, -2032(%ebp)         # 4-byte Folded Reload
+	sets	%cl
+	je	LBB48_94
+# BB#93:                                # %assert succeeded186
+	movb	%cl, %al
+LBB48_94:                               # %assert succeeded186
+	testb	%al, %al
+	je	LBB48_95
+# BB#96:                                # %assert succeeded188
+	movl	$3, %ecx
+	movl	-2076(%ebp), %eax       # 4-byte Reload
+	imull	%ecx
+	cmpl	%ebx, %eax
+	setb	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_98
+# BB#97:                                # %assert succeeded188
+	movb	%cl, %al
+LBB48_98:                               # %assert succeeded188
+	testb	%al, %al
+	je	LBB48_99
+# BB#100:                               # %assert succeeded190
+	movl	-2056(%ebp), %eax       # 4-byte Reload
+	imull	-2072(%ebp)             # 4-byte Folded Reload
+	cmpl	%ebx, %eax
+	setb	%al
+	testl	%edx, %edx
+	sets	%cl
+	je	LBB48_102
+# BB#101:                               # %assert succeeded190
+	movb	%cl, %al
+LBB48_102:                              # %assert succeeded190
+	testb	%al, %al
+	movl	-2068(%ebp), %esi       # 4-byte Reload
+	je	LBB48_99
+# BB#103:                               # %assert succeeded192
+	cmpl	%ebx, -2028(%ebp)       # 4-byte Folded Reload
+	setb	%al
+	cmpl	$0, -2024(%ebp)         # 4-byte Folded Reload
+	sets	%cl
+	je	LBB48_105
+# BB#104:                               # %assert succeeded192
+	movb	%cl, %al
+LBB48_105:                              # %assert succeeded192
+	testb	%al, %al
+	je	LBB48_106
+# BB#107:                               # %produce f0
+	cmpl	$0, -2020(%ebp)         # 4-byte Folded Reload
+	jle	LBB48_17
+# BB#108:                               # %for f0.s0.v1.preheader
+	cmpl	$0, -2044(%ebp)         # 4-byte Folded Reload
+	jle	LBB48_17
+# BB#109:                               # %for f0.s0.v0.preheader.us.preheader
+	movl	%edi, %ebx
+	subl	-2116(%ebp), %ebx       # 4-byte Folded Reload
+	imull	-2056(%ebp), %ebx       # 4-byte Folded Reload
+	movl	-2000(%ebp), %eax       # 4-byte Reload
+	leal	(%eax,%eax,2), %eax
+	addl	%eax, %ebx
+	movl	-2112(%ebp), %ecx       # 4-byte Reload
+	leal	(%ecx,%ecx,2), %ecx
+	subl	%ecx, %ebx
+	movl	%edi, %edx
+	subl	-2108(%ebp), %edx       # 4-byte Folded Reload
+	imull	-2048(%ebp), %edx       # 4-byte Folded Reload
+	addl	%eax, %edx
+	leal	(%esi,%esi,2), %ecx
+	subl	%ecx, %edx
+	movl	%edi, %esi
+	subl	-2104(%ebp), %esi       # 4-byte Folded Reload
+	imull	-2052(%ebp), %esi       # 4-byte Folded Reload
+	addl	%eax, %esi
+	movzbl	8(%ebp), %eax
+	movl	%eax, -2020(%ebp)       # 4-byte Spill
+	movl	-2100(%ebp), %eax       # 4-byte Reload
+	leal	(%eax,%eax,2), %ecx
+	subl	%ecx, %esi
+	movl	%esi, %eax
+	xorl	%ecx, %ecx
+	.align	16, 0x90
+LBB48_112:                              # %for f0.s0.v0.preheader.us
+                                        # =>This Loop Header: Depth=1
+                                        #     Child Loop BB48_110 Depth 2
+	movl	%ecx, -2040(%ebp)       # 4-byte Spill
+	movl	%eax, -2036(%ebp)       # 4-byte Spill
+	movl	%edx, -2032(%ebp)       # 4-byte Spill
+	movl	%ebx, -2028(%ebp)       # 4-byte Spill
+	movl	%edi, -2024(%ebp)       # 4-byte Spill
+	movl	%ecx, %edi
+	movl	%eax, %ecx
+	movl	-2044(%ebp), %eax       # 4-byte Reload
+	.align	16, 0x90
+LBB48_110:                              # %for f0.s0.v0.us
+                                        #   Parent Loop BB48_112 Depth=1
+                                        # =>  This Inner Loop Header: Depth=2
+	movl	%eax, -2000(%ebp)       # 4-byte Spill
+	movl	-2008(%ebp), %eax       # 4-byte Reload
+	movzbl	(%eax,%ecx), %eax
+	imull	$1802, %eax, %esi       # imm = 0x70A
+	movl	-2004(%ebp), %eax       # 4-byte Reload
+	movzbl	(%eax,%edx), %eax
+	imull	 $9667, %eax            # imm = 0x25C3
+	addl	%esi, %eax
+	movl	-2012(%ebp), %esi       # 4-byte Reload
+	movzbl	(%esi,%ebx), %esi
+	imull	 $4915, %esi            # imm = 0x1333
+	leal	8192(%esi,%eax), %eax
+	shrl	$14, %eax
+	movzbl	%al, %eax
+	cmpl	-2020(%ebp), %eax       # 4-byte Folded Reload
+	sbbb	%al, %al
+	notb	%al
+	movl	-2016(%ebp), %esi       # 4-byte Reload
+	movb	%al, (%esi,%edi)
+	movl	-2000(%ebp), %eax       # 4-byte Reload
+	addl	$3, %edi
+	addl	$3, %ebx
+	addl	$3, %edx
+	addl	$3, %ecx
+	decl	%eax
+	jne	LBB48_110
+# BB#111:                               # %end for f0.s0.v0.us
+                                        #   in Loop: Header=BB48_112 Depth=1
+	movl	-2024(%ebp), %edi       # 4-byte Reload
+	incl	%edi
+	movl	-2040(%ebp), %ecx       # 4-byte Reload
+	addl	-2060(%ebp), %ecx       # 4-byte Folded Reload
+	movl	-2028(%ebp), %ebx       # 4-byte Reload
+	addl	-2056(%ebp), %ebx       # 4-byte Folded Reload
+	movl	-2032(%ebp), %edx       # 4-byte Reload
+	addl	-2048(%ebp), %edx       # 4-byte Folded Reload
+	movl	-2036(%ebp), %eax       # 4-byte Reload
+	addl	-2052(%ebp), %eax       # 4-byte Folded Reload
+	cmpl	-2064(%ebp), %edi       # 4-byte Folded Reload
+	jne	LBB48_112
+LBB48_17:                               # %after_bb130
+	xorl	%eax, %eax
+LBB48_18:                               # %after_bb130
+	addl	$2144, %esp             # imm = 0x860
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%ebp
+	retl
+LBB48_1:                                # %assert failed
+	movl	$L_str, 4(%esp)
+	jmp	LBB48_2
+LBB48_4:                                # %assert failed12
+	movl	$L_str68, 4(%esp)
+	jmp	LBB48_2
+LBB48_6:                                # %assert failed31
+	movl	$L_str69, 4(%esp)
+	jmp	LBB48_2
+LBB48_8:                                # %assert failed50
+	movl	$L_str70, 4(%esp)
+	jmp	LBB48_2
+LBB48_66:                               # %assert failed171
+	movl	$L_str87, 4(%esp)
+	jmp	LBB48_2
+LBB48_77:                               # %assert failed177
+	movl	$L_str89, 4(%esp)
+	jmp	LBB48_2
+LBB48_88:                               # %assert failed183
+	movl	$L_str91, 4(%esp)
+	jmp	LBB48_2
+LBB48_99:                               # %assert failed189
+	movl	$L_str93, 4(%esp)
+	jmp	LBB48_2
+LBB48_21:                               # %assert failed131
+	movl	%esi, %ebx
+	leal	-1884(%ebp), %esi
+	movl	%esi, 4(%esp)
+	leal	-1996(%ebp), %edi
+	movl	%edi, (%esp)
+	movl	$L_str71, 8(%esp)
+	jmp	LBB48_28
+LBB48_23:                               # %assert failed133
+	movl	%esi, %ebx
+	leal	-1772(%ebp), %esi
+	movl	%esi, 4(%esp)
+	leal	-1884(%ebp), %edi
+	movl	%edi, (%esp)
+	movl	$L_str73, 8(%esp)
+	jmp	LBB48_28
+LBB48_25:                               # %assert failed135
+	leal	-1660(%ebp), %esi
+	movl	%esi, 4(%esp)
+	leal	-1772(%ebp), %edi
+	movl	%edi, (%esp)
+	movl	$L_str74, 8(%esp)
+	movl	%eax, %ebx
+	jmp	LBB48_28
+LBB48_27:                               # %assert failed137
+	leal	-1548(%ebp), %esi
+	movl	%esi, 4(%esp)
+	leal	-1660(%ebp), %edi
+	movl	%edi, (%esp)
+	movl	$L_str75, 8(%esp)
+LBB48_28:                               # %assert failed137
+	calll	_halide_string_to_string
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%esi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%esi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str72, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%edi, 4(%esp)
+	jmp	LBB48_2
+LBB48_30:                               # %assert failed139
+	leal	-1420(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-1548(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str76, 8(%esp)
+	movl	-2000(%ebp), %ebx       # 4-byte Reload
+	movl	%edx, %esi
+	calll	_halide_string_to_string
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str77, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%esi, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%esi, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str78, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-1548(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_32:                               # %assert failed141
+	leal	-1292(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-1420(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str76, 8(%esp)
+	movl	%edx, %esi
+	calll	_halide_string_to_string
+	decl	%ebx
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str79, 8(%esp)
+	calll	_halide_string_to_string
+	movl	-2092(%ebp), %ecx       # 4-byte Reload
+	leal	-1(%ecx,%esi), %ecx
+	movl	%ecx, %edx
+	sarl	$31, %edx
+	movl	%edx, 12(%esp)
+	movl	%ecx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str78, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-1420(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_34:                               # %assert failed143
+	movl	%edi, %ebx
+	leal	-1164(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-1292(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str76, 8(%esp)
+	movl	%edx, %esi
+	calll	_halide_string_to_string
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str77, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%esi, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%esi, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str80, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-1292(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_37:                               # %assert failed145
+	leal	-1036(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-1164(%ebp), %esi
+	movl	%esi, (%esp)
+	movl	$L_str76, 8(%esp)
+	movl	%edx, %ebx
+	calll	_halide_string_to_string
+	movl	-2064(%ebp), %edx       # 4-byte Reload
+	decl	%edx
+	movl	%edx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%edx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str79, 8(%esp)
+	calll	_halide_string_to_string
+	movl	-2088(%ebp), %ecx       # 4-byte Reload
+	jmp	LBB48_38
+LBB48_40:                               # %assert failed147
+	leal	-908(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-1036(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str81, 8(%esp)
+	movl	-2000(%ebp), %ebx       # 4-byte Reload
+	movl	%ecx, %esi
+	calll	_halide_string_to_string
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str77, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%esi, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%esi, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str78, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-1036(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_42:                               # %assert failed149
+	leal	-780(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-908(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str81, 8(%esp)
+	movl	%ecx, %esi
+	calll	_halide_string_to_string
+	decl	%ebx
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str79, 8(%esp)
+	calll	_halide_string_to_string
+	movl	-2084(%ebp), %ecx       # 4-byte Reload
+	leal	-1(%ecx,%esi), %ecx
+	movl	%ecx, %edx
+	sarl	$31, %edx
+	movl	%edx, 12(%esp)
+	movl	%ecx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str78, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-908(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_44:                               # %assert failed151
+	movl	%edi, %ebx
+	leal	-652(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-780(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str81, 8(%esp)
+	movl	%ecx, %esi
+	calll	_halide_string_to_string
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str77, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%esi, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%esi, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str80, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-780(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_46:                               # %assert failed153
+	leal	-524(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-652(%ebp), %esi
+	movl	%esi, (%esp)
+	movl	$L_str81, 8(%esp)
+	movl	%ecx, %ebx
+	calll	_halide_string_to_string
+	movl	-2064(%ebp), %edx       # 4-byte Reload
+	decl	%edx
+	movl	%edx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%edx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str79, 8(%esp)
+	calll	_halide_string_to_string
+	movl	-2080(%ebp), %ecx       # 4-byte Reload
+	jmp	LBB48_38
+LBB48_48:                               # %assert failed155
+	leal	-396(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-524(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str82, 8(%esp)
+	movl	-2000(%ebp), %ebx       # 4-byte Reload
+	movl	%edx, %esi
+	calll	_halide_string_to_string
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str77, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%esi, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%esi, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str78, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-524(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_50:                               # %assert failed157
+	leal	-268(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-396(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str82, 8(%esp)
+	movl	%edx, %esi
+	calll	_halide_string_to_string
+	decl	%ebx
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str79, 8(%esp)
+	calll	_halide_string_to_string
+	movl	-2076(%ebp), %ecx       # 4-byte Reload
+	leal	-1(%ecx,%esi), %ecx
+	movl	%ecx, %edx
+	sarl	$31, %edx
+	movl	%edx, 12(%esp)
+	movl	%ecx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str78, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-396(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_52:                               # %assert failed159
+	movl	%edi, %ebx
+	leal	-140(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-268(%ebp), %eax
+	movl	%eax, (%esp)
+	movl	$L_str82, 8(%esp)
+	movl	%ecx, %esi
+	calll	_halide_string_to_string
+	movl	%ebx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%ebx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str77, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%esi, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%esi, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str80, 8(%esp)
+	calll	_halide_string_to_string
+	leal	-268(%ebp), %eax
+	movl	%eax, 4(%esp)
+	jmp	LBB48_2
+LBB48_54:                               # %assert failed161
+	leal	-12(%ebp), %edi
+	movl	%edi, 4(%esp)
+	leal	-140(%ebp), %esi
+	movl	%esi, (%esp)
+	movl	$L_str82, 8(%esp)
+	movl	%ecx, %ebx
+	calll	_halide_string_to_string
+	movl	-2064(%ebp), %edx       # 4-byte Reload
+	decl	%edx
+	movl	%edx, %ecx
+	sarl	$31, %ecx
+	movl	%ecx, 12(%esp)
+	movl	%edx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str79, 8(%esp)
+	calll	_halide_string_to_string
+	movl	-2072(%ebp), %ecx       # 4-byte Reload
+LBB48_38:                               # %assert failed145
+	leal	-1(%ecx,%ebx), %ecx
+	movl	%ecx, %edx
+	sarl	$31, %edx
+	movl	%edx, 12(%esp)
+	movl	%ecx, 8(%esp)
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$1, 16(%esp)
+	calll	_halide_int64_to_string
+	movl	%edi, 4(%esp)
+	movl	%eax, (%esp)
+	movl	$L_str80, 8(%esp)
+	calll	_halide_string_to_string
+	movl	%esi, 4(%esp)
+	jmp	LBB48_2
+LBB48_56:                               # %assert failed163
+	movl	$L_str83, 4(%esp)
+	jmp	LBB48_2
+LBB48_58:                               # %assert failed165
+	movl	$L_str84, 4(%esp)
+	jmp	LBB48_2
+LBB48_60:                               # %assert failed167
+	movl	$L_str85, 4(%esp)
+	jmp	LBB48_2
+LBB48_62:                               # %assert failed169
+	movl	$L_str86, 4(%esp)
+	jmp	LBB48_2
+LBB48_73:                               # %assert failed175
+	movl	$L_str88, 4(%esp)
+	jmp	LBB48_2
+LBB48_84:                               # %assert failed181
+	movl	$L_str90, 4(%esp)
+	jmp	LBB48_2
+LBB48_95:                               # %assert failed187
+	movl	$L_str92, 4(%esp)
+	jmp	LBB48_2
+LBB48_106:                              # %assert failed193
+	movl	$L_str94, 4(%esp)
+LBB48_2:                                # %assert failed
+	movl	$0, (%esp)
+	calll	_halide_error
+	movl	$-1, %eax
+	jmp	LBB48_18
+
+	.def	 _f0_jit_wrapper;
+	.scl	2;
+	.type	32;
+	.endef
+	.globl	_f0_jit_wrapper
+	.align	16, 0x90
+_f0_jit_wrapper:                        # @f0_jit_wrapper
+# BB#0:                                 # %entry
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	subl	$20, %esp
+	movl	8(%ebp), %eax
+	movl	(%eax), %ecx
+	movl	4(%eax), %edx
+	movl	8(%eax), %esi
+	movl	12(%eax), %edi
+	movl	16(%eax), %eax
+	movzbl	(%ecx), %ecx
+	movl	%eax, 16(%esp)
+	movl	%edi, 12(%esp)
+	movl	%esi, 8(%esp)
+	movl	%edx, 4(%esp)
+	movl	%ecx, (%esp)
+	calll	_f0
+	addl	$20, %esp
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	retl
+
+	.section	.bss,"wb",discard,_halide_reference_clock_inited
+	.globl	_halide_reference_clock_inited # @halide_reference_clock_inited
+_halide_reference_clock_inited:
+	.byte	0                       # 0x0
+
+	.section	.bss,"wb",discard,_halide_reference_clock
+	.globl	_halide_reference_clock # @halide_reference_clock
+	.align	8
+_halide_reference_clock:
+	.quad	0                       # 0x0
+
+	.section	.data,"wd",discard,_halide_clock_frequency
+	.globl	_halide_clock_frequency # @halide_clock_frequency
+	.align	8
+_halide_clock_frequency:
+	.quad	1                       # 0x1
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal21halide_custom_do_taskE
+	.globl	__ZN6Halide7Runtime8Internal21halide_custom_do_taskE # @_ZN6Halide7Runtime8Internal21halide_custom_do_taskE
+	.align	4
+__ZN6Halide7Runtime8Internal21halide_custom_do_taskE:
+	.long	0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal24halide_custom_do_par_forE
+	.globl	__ZN6Halide7Runtime8Internal24halide_custom_do_par_forE # @_ZN6Halide7Runtime8Internal24halide_custom_do_par_forE
+	.align	4
+__ZN6Halide7Runtime8Internal24halide_custom_do_par_forE:
+	.long	0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal17halide_work_queueE
+	.globl	__ZN6Halide7Runtime8Internal17halide_work_queueE # @_ZN6Halide7Runtime8Internal17halide_work_queueE
+	.align	8
+__ZN6Halide7Runtime8Internal17halide_work_queueE:
+	.zero	328
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal18halide_num_threadsE
+	.globl	__ZN6Halide7Runtime8Internal18halide_num_threadsE # @_ZN6Halide7Runtime8Internal18halide_num_threadsE
+	.align	4
+__ZN6Halide7Runtime8Internal18halide_num_threadsE:
+	.long	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal30halide_thread_pool_initializedE
+	.globl	__ZN6Halide7Runtime8Internal30halide_thread_pool_initializedE # @_ZN6Halide7Runtime8Internal30halide_thread_pool_initializedE
+__ZN6Halide7Runtime8Internal30halide_thread_pool_initializedE:
+	.byte	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal24halide_ocl_platform_nameE
+	.globl	__ZN6Halide7Runtime8Internal24halide_ocl_platform_nameE # @_ZN6Halide7Runtime8Internal24halide_ocl_platform_nameE
+__ZN6Halide7Runtime8Internal24halide_ocl_platform_nameE:
+	.zero	256
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal29halide_ocl_platform_name_lockE
+	.globl	__ZN6Halide7Runtime8Internal29halide_ocl_platform_name_lockE # @_ZN6Halide7Runtime8Internal29halide_ocl_platform_name_lockE
+	.align	4
+__ZN6Halide7Runtime8Internal29halide_ocl_platform_name_lockE:
+	.long	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal36halide_ocl_platform_name_initializedE
+	.globl	__ZN6Halide7Runtime8Internal36halide_ocl_platform_name_initializedE # @_ZN6Halide7Runtime8Internal36halide_ocl_platform_name_initializedE
+__ZN6Halide7Runtime8Internal36halide_ocl_platform_name_initializedE:
+	.byte	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal22halide_ocl_device_typeE
+	.globl	__ZN6Halide7Runtime8Internal22halide_ocl_device_typeE # @_ZN6Halide7Runtime8Internal22halide_ocl_device_typeE
+__ZN6Halide7Runtime8Internal22halide_ocl_device_typeE:
+	.zero	256
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal27halide_ocl_device_type_lockE
+	.globl	__ZN6Halide7Runtime8Internal27halide_ocl_device_type_lockE # @_ZN6Halide7Runtime8Internal27halide_ocl_device_type_lockE
+	.align	4
+__ZN6Halide7Runtime8Internal27halide_ocl_device_type_lockE:
+	.long	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal34halide_ocl_device_type_initializedE
+	.globl	__ZN6Halide7Runtime8Internal34halide_ocl_device_type_initializedE # @_ZN6Halide7Runtime8Internal34halide_ocl_device_type_initializedE
+__ZN6Halide7Runtime8Internal34halide_ocl_device_type_initializedE:
+	.byte	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal17halide_gpu_deviceE
+	.globl	__ZN6Halide7Runtime8Internal17halide_gpu_deviceE # @_ZN6Halide7Runtime8Internal17halide_gpu_deviceE
+	.align	4
+__ZN6Halide7Runtime8Internal17halide_gpu_deviceE:
+	.long	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal22halide_gpu_device_lockE
+	.globl	__ZN6Halide7Runtime8Internal22halide_gpu_device_lockE # @_ZN6Halide7Runtime8Internal22halide_gpu_device_lockE
+	.align	4
+__ZN6Halide7Runtime8Internal22halide_gpu_device_lockE:
+	.long	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal29halide_gpu_device_initializedE
+	.globl	__ZN6Halide7Runtime8Internal29halide_gpu_device_initializedE # @_ZN6Halide7Runtime8Internal29halide_gpu_device_initializedE
+__ZN6Halide7Runtime8Internal29halide_gpu_device_initializedE:
+	.byte	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal19halide_custom_traceE
+	.globl	__ZN6Halide7Runtime8Internal19halide_custom_traceE # @_ZN6Halide7Runtime8Internal19halide_custom_traceE
+	.align	4
+__ZN6Halide7Runtime8Internal19halide_custom_traceE:
+	.long	0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal17halide_trace_fileE
+	.globl	__ZN6Halide7Runtime8Internal17halide_trace_fileE # @_ZN6Halide7Runtime8Internal17halide_trace_fileE
+	.align	4
+__ZN6Halide7Runtime8Internal17halide_trace_fileE:
+	.long	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal22halide_trace_file_lockE
+	.globl	__ZN6Halide7Runtime8Internal22halide_trace_file_lockE # @_ZN6Halide7Runtime8Internal22halide_trace_file_lockE
+	.align	4
+__ZN6Halide7Runtime8Internal22halide_trace_file_lockE:
+	.long	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal29halide_trace_file_initializedE
+	.globl	__ZN6Halide7Runtime8Internal29halide_trace_file_initializedE # @_ZN6Halide7Runtime8Internal29halide_trace_file_initializedE
+__ZN6Halide7Runtime8Internal29halide_trace_file_initializedE:
+	.byte	0                       # 0x0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal35halide_trace_file_internally_openedE
+	.globl	__ZN6Halide7Runtime8Internal35halide_trace_file_internally_openedE # @_ZN6Halide7Runtime8Internal35halide_trace_file_internally_openedE
+__ZN6Halide7Runtime8Internal35halide_trace_file_internally_openedE:
+	.byte	0                       # 0x0
+
+	.section	.data,"wd",discard,__ZN6Halide7Runtime8Internal30pixel_type_to_tiff_sample_typeE
+	.globl	__ZN6Halide7Runtime8Internal30pixel_type_to_tiff_sample_typeE # @_ZN6Halide7Runtime8Internal30pixel_type_to_tiff_sample_typeE
+	.align	2
+__ZN6Halide7Runtime8Internal30pixel_type_to_tiff_sample_typeE:
+	.short	3                       # 0x3
+	.short	3                       # 0x3
+	.short	1                       # 0x1
+	.short	2                       # 0x2
+	.short	1                       # 0x1
+	.short	2                       # 0x2
+	.short	1                       # 0x1
+	.short	2                       # 0x2
+	.short	1                       # 0x1
+	.short	2                       # 0x2
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal20halide_custom_mallocE
+	.globl	__ZN6Halide7Runtime8Internal20halide_custom_mallocE # @_ZN6Halide7Runtime8Internal20halide_custom_mallocE
+	.align	4
+__ZN6Halide7Runtime8Internal20halide_custom_mallocE:
+	.long	0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal18halide_custom_freeE
+	.globl	__ZN6Halide7Runtime8Internal18halide_custom_freeE # @_ZN6Halide7Runtime8Internal18halide_custom_freeE
+	.align	4
+__ZN6Halide7Runtime8Internal18halide_custom_freeE:
+	.long	0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal20halide_error_handlerE
+	.globl	__ZN6Halide7Runtime8Internal20halide_error_handlerE # @_ZN6Halide7Runtime8Internal20halide_error_handlerE
+	.align	4
+__ZN6Halide7Runtime8Internal20halide_error_handlerE:
+	.long	0
+
+	.section	.rdata,"rd"
+L_.str27:                               # @.str27
+	.asciz	"Error: "
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal19halide_custom_printE
+	.globl	__ZN6Halide7Runtime8Internal19halide_custom_printE # @_ZN6Halide7Runtime8Internal19halide_custom_printE
+	.align	4
+__ZN6Halide7Runtime8Internal19halide_custom_printE:
+	.long	0
+
+	.section	.rdata,"rd"
+L_.str36:                               # @.str36
+	.asciz	"from.elem_size == to.elem_size"
+
+L_.str137:                              # @.str137
+	.asciz	"from.extent[i] == to.extent[i]"
+
+L_.str238:                              # @.str238
+	.asciz	"from.stride[i] == to.stride[i]"
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal16memoization_lockE
+	.globl	__ZN6Halide7Runtime8Internal16memoization_lockE # @_ZN6Halide7Runtime8Internal16memoization_lockE
+__ZN6Halide7Runtime8Internal16memoization_lockE:
+	.zero	64
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal13cache_entriesE
+	.globl	__ZN6Halide7Runtime8Internal13cache_entriesE # @_ZN6Halide7Runtime8Internal13cache_entriesE
+	.align	4
+__ZN6Halide7Runtime8Internal13cache_entriesE:
+	.zero	1024
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal18most_recently_usedE
+	.globl	__ZN6Halide7Runtime8Internal18most_recently_usedE # @_ZN6Halide7Runtime8Internal18most_recently_usedE
+	.align	4
+__ZN6Halide7Runtime8Internal18most_recently_usedE:
+	.long	0
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal19least_recently_usedE
+	.globl	__ZN6Halide7Runtime8Internal19least_recently_usedE # @_ZN6Halide7Runtime8Internal19least_recently_usedE
+	.align	4
+__ZN6Halide7Runtime8Internal19least_recently_usedE:
+	.long	0
+
+	.section	.data,"wd",discard,__ZN6Halide7Runtime8Internal14max_cache_sizeE
+	.globl	__ZN6Halide7Runtime8Internal14max_cache_sizeE # @_ZN6Halide7Runtime8Internal14max_cache_sizeE
+	.align	8
+__ZN6Halide7Runtime8Internal14max_cache_sizeE:
+	.quad	1048576                 # 0x100000
+
+	.section	.bss,"wb",discard,__ZN6Halide7Runtime8Internal18current_cache_sizeE
+	.globl	__ZN6Halide7Runtime8Internal18current_cache_sizeE # @_ZN6Halide7Runtime8Internal18current_cache_sizeE
+	.align	8
+__ZN6Halide7Runtime8Internal18current_cache_sizeE:
+	.quad	0                       # 0x0
+
+	.section	.rdata,"rd"
+L_.str339:                              # @.str339
+	.asciz	"entry != NULL"
+
+L_.str440:                              # @.str440
+	.asciz	"entry->more_recent != NULL"
+
+L_.str541:                              # @.str541
+	.asciz	"least_recently_used == entry"
+
+L_.str65:                               # @.str65
+	.asciz	"No gpu target enabled"
+
+	.align	32                      # @str
+L_str:
+	.asciz	"buffer argument p1 is NULL"
+
+	.align	32                      # @str68
+L_str68:
+	.asciz	"buffer argument p2 is NULL"
+
+	.align	32                      # @str69
+L_str69:
+	.asciz	"buffer argument p3 is NULL"
+
+	.align	32                      # @str70
+L_str70:
+	.asciz	"buffer argument f0 is NULL"
+
+	.align	32                      # @str71
+L_str71:
+	.asciz	"Output buffer f0 has type uint8, but elem_size of the buffer_t passed in is "
+
+	.align	32                      # @str72
+L_str72:
+	.asciz	" instead of 1"
+
+	.align	32                      # @str73
+L_str73:
+	.asciz	"Input buffer p1 has type uint8, but elem_size of the buffer_t passed in is "
+
+	.align	32                      # @str74
+L_str74:
+	.asciz	"Input buffer p2 has type uint8, but elem_size of the buffer_t passed in is "
+
+	.align	32                      # @str75
+L_str75:
+	.asciz	"Input buffer p3 has type uint8, but elem_size of the buffer_t passed in is "
+
+	.align	32                      # @str76
+L_str76:
+	.asciz	"Input buffer p1 is accessed at "
+
+	.align	32                      # @str77
+L_str77:
+	.asciz	", which is before the min ("
+
+	.align	32                      # @str78
+L_str78:
+	.asciz	") in dimension 0"
+
+	.align	32                      # @str79
+L_str79:
+	.asciz	", which is beyond the max ("
+
+	.align	32                      # @str80
+L_str80:
+	.asciz	") in dimension 1"
+
+	.align	32                      # @str81
+L_str81:
+	.asciz	"Input buffer p2 is accessed at "
+
+	.align	32                      # @str82
+L_str82:
+	.asciz	"Input buffer p3 is accessed at "
+
+	.align	32                      # @str83
+L_str83:
+	.asciz	"Static constraint violated: f0.stride.0 == 3"
+
+	.align	32                      # @str84
+L_str84:
+	.asciz	"Static constraint violated: p1.stride.0 == 3"
+
+	.align	32                      # @str85
+L_str85:
+	.asciz	"Static constraint violated: p2.stride.0 == 3"
+
+	.align	32                      # @str86
+L_str86:
+	.asciz	"Static constraint violated: p3.stride.0 == 3"
+
+	.align	32                      # @str87
+L_str87:
+	.asciz	"Total allocation for buffer f0 exceeds 2^31 - 1"
+
+	.align	32                      # @str88
+L_str88:
+	.asciz	"Product of extents for buffer f0 exceeds 2^31 - 1"
+
+	.align	32                      # @str89
+L_str89:
+	.asciz	"Total allocation for buffer p1 exceeds 2^31 - 1"
+
+	.align	32                      # @str90
+L_str90:
+	.asciz	"Product of extents for buffer p1 exceeds 2^31 - 1"
+
+	.align	32                      # @str91
+L_str91:
+	.asciz	"Total allocation for buffer p2 exceeds 2^31 - 1"
+
+	.align	32                      # @str92
+L_str92:
+	.asciz	"Product of extents for buffer p2 exceeds 2^31 - 1"
+
+	.align	32                      # @str93
+L_str93:
+	.asciz	"Total allocation for buffer p3 exceeds 2^31 - 1"
+
+	.align	32                      # @str94
+L_str94:
+	.asciz	"Product of extents for buffer p3 exceeds 2^31 - 1"
+
+

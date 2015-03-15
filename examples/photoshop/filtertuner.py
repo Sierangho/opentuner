@@ -8,10 +8,14 @@
 #     in main() 
 #  2) Creating a settings file that describes the functions and variables
 #     (see apps/halide_blur.settings for an example)
+#  3) Compile the function to a file with name 'halide_out'
+#     eg: vector<Argument> args;
+#         args.push_back(input_1);
+#         output_2.compile_to_file("halide_out",args);
 #
 # Halide can be found here: https://github.com/halide/Halide
 # 
-# Configured to run on Windows, requires Microsoft Visual C++ 2012
+# Configured to run on Windows, requires Microsoft Visual C++ 2012 and pywin32
 
 import adddeps  # fix sys.path
 
@@ -22,6 +26,7 @@ import json
 import logging
 import math
 import os
+import errno
 import re
 import subprocess
 import tempfile
@@ -29,6 +34,12 @@ import textwrap
 from cStringIO import StringIO
 from fn import _
 from pprint import pprint
+import win32file
+import win32event
+import win32con
+import win32api
+import win32gui
+import time
 
 import opentuner
 from opentuner.search.manipulator import ConfigurationManipulator
@@ -36,31 +47,22 @@ from opentuner.search.manipulator import PowerOfTwoParameter
 from opentuner.search.manipulator import PermutationParameter
 from opentuner.search.manipulator import BooleanParameter
 from opentuner.search.manipulator import ScheduleParameter
+from opentuner.search.manipulator import IntegerParameter
 
-
-#TODO GENERATE halide_out_0.def. also change the name
+#TODO GENERATE halide_out.def. also change the name?
 COMPILE_CMD = '"{args.vcvarsall}" &' # load microsoft visual c compiler
 COMPILE_CMD += 'cl "{cpp}" -I "{args.halide_dir}" -Fe"{args.tmp_dir}/gen" -link "{args.halide_dir}/halide.lib" &' # compile halide
 COMPILE_CMD += '"{args.tmp_dir}/gen.exe" &' #create halide files
-COMPILE_CMD += 'link -out:{args.tmp_dir}/filter.dll -dll -def:"{args.tmp_dir}/{args.halide_output_name}" "{args/tmp_dr}/{args.halide_output_name}.o" msvcrt.lib' #create dll
-
-RUN_SRC_CMD = (
-  '"{args.vcvarsall}" &'
-  'cl "{cpp}" -o "{exe}" -I "{args.halide_dir}" '
-  '-link "{args.halide_dir}/halide.lib" '
-  '-DAUTOTUNE_N="{args.input_size}" -DAUTOTUNE_TRIALS={args.trials} '
-  '-DAUTOTUNE_LIMIT={limit} -fno-rtti')
-
+COMPILE_CMD += 'link -out:{args.tmp_dir}/filter.dll -dll -def:"halide_out.def" "halide_out.o" msvcrt.lib' #create dll
 
 log = logging.getLogger('halide')
 
 parser = argparse.ArgumentParser(parents=opentuner.argparsers())
 parser.add_argument('source', help='Halide source file annotated with '
                                    'AUTOTUNE_HOOK')
+parser.add_argument('image', help='Test Image file to run filter on')
 parser.add_argument('--halide-dir', default='C:/Halide',
                     help='Installation directory for Halide')
-parser.add_argument('--input-size',
-                    help='Input size to test with')
 parser.add_argument('--trials', default=3, type=int,
                     help='Number of times to test each schedule')
 parser.add_argument('--nesting', default=2, type=int,
@@ -69,14 +71,20 @@ parser.add_argument('--max-split-factor', default=8, type=int,
                     help='The largest value a single split() can add')
 parser.add_argument('--compile-command', default=COMPILE_CMD,
                     help='How to compile generated C++ code')
-parser.add_argument('--tmp-dir',
+parser.add_argument('--tmp-dir', # shouldn't actually change this yet (hardcoded in the plugin)
                     default='C:/temp',
-                    help='Where to store generated tests')
+                    help='Where to store generated filter dll')
+parser.add_argument('--plugin-dir', # shouldn't actually change this yet (hardcoded in the plugin)
+                    default='C:/temp/plugin',
+                    help='Directory being watched by the plugin')
+parser.add_argument('--result-dir', # shouldn't actually change this yet (hardcoded in the plugin)
+                    default='C:/temp/result',
+                    help='Directory plugin will write results to. Must differ from plugin-dir')
 parser.add_argument('--settings-file',
                     help='Override location of json encoded settings')
 parser.add_argument('--debug-error',
                     help='Stop on errors matching a given string')
-parser.add_argument('--limit', type=float, default=30,
+parser.add_argument('--limit', type=float, default=15,
                     help='Kill compile + runs taking too long (seconds)')
 parser.add_argument('--memory-limit', type=int, default=1024 ** 3,
                     help='Set memory ulimit on unix based systems')
@@ -87,10 +95,11 @@ parser.add_argument('--enable-store-at', action='store_true',
 parser.add_argument('--gated-store-reorder', action='store_true',
                     help='Only reorder storage if a special parameter is given')
 
+parser.add_argument('--ps-api-dir', default = 'PhotoshopAPI', # not used yet - tobe used to build plugin
+                    help='Location of PhotoshopAPI from the photoshop cs6 sdk')
+parser.add_argument('--photoshop-dir', default = r'C:\Program Files (x86)\Adobe\Adobe Photoshop CS6')
 parser.add_argument('--vcvarsall', default='C:/Program Files (x86)/Microsoft Visual Studio 12.0/VC/vcvarsall.bat',
                     help='Directory where Microsoft VS vcvarsall.bat is located')
-parser.add_argument('--halide-output-name', default='halide_out_0',
-                    help='Name of output file from halide code. Should remove this eventually')
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--random-test', action='store_true',
@@ -131,8 +140,6 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     with open(args.settings_file) as fd:
       self.settings = json.load(fd)
     self.post_dominators = post_dominators(self.settings)
-    if not args.input_size:
-      args.input_size = self.settings['input_size']
     # set "program_version" based on hash of halidetuner.py, program source
     h = hashlib.md5()
     #with open(__file__) as src:
@@ -141,6 +148,116 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
       h.update(src.read())
     self._version = h.hexdigest()
 
+    self.build_plugin();
+
+    #make sure tmp directories and files created
+    try:
+      os.makedirs(args.tmp_dir)
+    except OSError as exception:
+      if exception.errno != errno.EEXIST:
+        raise        
+    try:
+      os.makedirs(args.plugin_dir)
+    except OSError as exception:
+      if exception.errno != errno.EEXIST:
+        raise
+    try:
+      os.makedirs(args.result_dir)
+    except OSError as exception:
+      if exception.errno != errno.EEXIST:
+        raise
+
+    f = open(args.plugin_dir + '/tilesize.txt','w')
+    f.write("")
+    f.close()
+
+    #generate script to init photoshop plugin
+    f = open('start_plugin.jsx', 'w')
+    f.write(
+      '''
+      #target photoshop
+
+      var idOpn = charIDToTypeID( "Opn " );
+      var desc1 = new ActionDescriptor();
+      var idnull = charIDToTypeID( "null" );
+      desc1.putPath( idnull, new File( "%(imgPath)s" ) );
+      executeAction( idOpn, desc1, DialogModes.NO );
+
+      var id = stringIDToTypeID( "d9543b0c-3c91-11d4-97bc-00b0d0204936" );
+      executeAction( id, undefined, DialogModes.NO );
+
+      ''' % {"imgPath": args.image}
+
+      )
+    f.close()
+    return #TODO remove testing
+    self.kill_photoshop()
+    self.start_photoshop()
+
+
+
+  def start_photoshop(self):
+    subprocess.Popen(self.args.photoshop_dir+'/photoshop.exe')
+    time.sleep(10) #wait for photoshop to start up and trial notification to go away
+
+    os.startfile('start_plugin.jsx')
+    time.sleep(1)
+    
+    # set focus to alert and 
+    toplist = []
+    winlist = []
+    def enum_callback(hwnd, results):
+      winlist.append((hwnd, win32gui.GetWindowText(hwnd)))
+
+    win32gui.EnumWindows(enum_callback, toplist)
+    alert = [(hwnd, title) for hwnd, title in winlist if 'script alert' in title.lower()]
+    for al in alert:
+      try:
+        win32gui.SetForegroundWindow(al[0])
+        win32api.keybd_event(win32con.VK_RETURN, 0, 0, 0) #press enter
+        win32api.keybd_event(win32con.VK_RETURN, 0, win32con.KEYEVENTF_KEYUP, 0) #press enter
+      except: 
+        print "Error confirming script start"
+    
+    # wait for notification that plugin has started
+    change_handle = win32file.FindFirstChangeNotification (
+                  self.args.result_dir,
+                  0,
+                  win32con.FILE_NOTIFY_CHANGE_LAST_WRITE)
+    try:
+      i = 0
+      # wait up to a minute for photoshop to start
+      while i < 120:
+        result = win32event.WaitForSingleObject(change_handle, 500)
+        if result == win32con.WAIT_OBJECT_0:
+          break
+        i += 1
+          
+    finally:
+      win32file.FindCloseChangeNotification(change_handle)
+    return
+
+
+  def kill_photoshop(self):
+    return os.system("taskkill /im photoshop.exe /f")
+
+  def build_plugin(self):
+    return
+    #TODO build the plugin after inserting temp folder locations
+    # for now, must build plugin through visual studio externally and copy the resulting .8bf plugin file
+    # into photoshop's plugin directory. The files modified photoshop's tutorial dissolve plugin to do this are under 
+    # /common
+
+    # cmd = '"{args.vcvarsall}" &' 
+    # cmd += r'cl /c /I"{args.ps_api_dir}" /I"{args.ps_api_dir}/Photoshop" /I"{args.halide_dir}" /I"{args.ps_api_dir}\PICA_SP" /I".\common" /I".\common\includes" /ZI /W4 /WX- /Od /Oy- /D ISOLATION_AWARE_ENABLED=1 /D WIN32=1 /D _DEBUG /D _CRT_SECURE_NO_DEPRECATE /D _SCL_SECURE_NO_DEPRECATE /D _WINDOWS /D _USRDLL /D DISSOLVE_EXPORTS /D _VC80_UPGRADE=0x0710 /D _USING_V110_SDK71_ /D _WINDLL /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo".\output/" /Fd".\.output\vc120.pdb" /FR".\Debug\\" /Gd /TP /analyze- /errorReport:prompt /MP /GS /F30000000 .\common\sources\Logger.cpp .\common\sources\PIUFile.cpp .\common\sources\Timer.cpp .\common\halide_funcs.cpp'
+    # cmd = cmd.format(args=self.args)
+
+    # compile_result = self.call_program(cmd, limit=self.args.limit,
+    #                                    memory_limit=self.args.memory_limit)
+    # if compile_result['returncode'] != 0:
+
+    #   log.error('compile failed: %s', compile_result)
+    
   def compute_order_parameter(self, func):
     name = func['name']
     schedule_vars = []
@@ -158,7 +275,6 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     The definition of the manipulator is meant to mimic the Halide::Schedule
     data structure and defines the configuration space to search
     """
-    #TODO add tile size params
     manipulator = HalideConfigurationManipulator(self)
     manipulator.add_parameter(HalideComputeAtScheduleParameter(
       'schedule', self.args, self.settings['functions'],
@@ -181,6 +297,9 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
           manipulator.add_parameter(PowerOfTwoParameter(
             '{0}_splitfactor_{1}_{2}'.format(name, nesting, var),
             1, self.args.max_split_factor))
+    #Add tile size parameters (will be )
+    manipulator.add_parameter(IntegerParameter('horizontal_tile_size', 1, 256))
+    manipulator.add_parameter(IntegerParameter('vertical_tile_size', 1, 256))
 
     return manipulator
 
@@ -194,8 +313,6 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     schedule = ComputeAtStoreAtParser(cfg['schedule'], self.post_dominators)
     compute_at = schedule.compute_at
     store_at = schedule.store_at
-
-    #TODO insert tile sizes as commented fields
 
     # build list of all used variable names
     var_names = dict()
@@ -226,7 +343,9 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
       else:
         unroll = 1
 
-      print >> o, 'Halide::Func(funcs["%s"])' % name
+      # print >> o, 'Halide::Func(funcs["%s"])' % name
+
+      print >> o, '%s' % name
 
       for var in func['vars']:
         # handle all splits
@@ -314,36 +433,17 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     """
     Generate a temporary Halide cpp file with schedule inserted
     """
-
+    # TESTING - no schedule
+    # return self.template
     def repl_autotune_hook(match):
+      # std::map<std::string, Halide::Internal::Function> funcs = Halide::Internal::find_transitive_calls((%(func)s).function());
+        
       tmpl = '''
-    
-        std::map<std::string, Halide::Internal::Function> funcs = Halide::Internal::find_transitive_calls((%(func)s).function());
-
+        
         %(sched)s
 
     '''
-      return tmpl % {"sched": schedule.replace('\n', '\n        '), "func": match.group(1)}
-
-    source = re.sub(r'\n\s*AUTOTUNE_HOOK\(\s*([a-zA-Z0-9_]+)\s*\)',
-                    repl_autotune_hook, self.template)
-    return source
-
-  def schedule_to_source_old(self, schedule):
-    """
-    Generate a temporary Halide cpp file with schedule inserted- kept to generate settings file
-    """
-
-    def repl_autotune_hook(match):
-      tmpl = '''
-    {
-        std::map<std::string, Halide::Internal::Function> funcs = Halide::Internal::find_transitive_calls((%(func)s).function());
-
-        %(sched)s
-
-        _autotune_timing_stub(%(func)s);
-    }'''
-      return tmpl % {"sched": schedule.replace('\n', '\n        '), "func": match.group(1)}
+      return tmpl % {"sched": schedule.replace('\n', '\n        ')}
 
     source = re.sub(r'\n\s*AUTOTUNE_HOOK\(\s*([a-zA-Z0-9_]+)\s*\)',
                     repl_autotune_hook, self.template)
@@ -352,35 +452,94 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
 
   def run_schedule(self, schedule, cfg):
     """
-    TODO
     Generate a temporary Halide cpp file with schedule inserted and compile.
     Run output exe to generate .o and .h file
     Build dll
     notify Photoshop and pass tile size to test
     Wait for response.
     """
-    self.build_dll(self.schedule_to_source(schedule))
-    
-    #TODO write to file with tile sizes
+    print "new schedule"
+    if self.build_dll(self.schedule_to_source(schedule)): 
+      return # TESTING - generate dll only
+      return self.notify_photoshop(cfg)
+    #failed to build
+    return None
 
-    #TODO listen to file write with time
-    return 5
+  def notify_photoshop(self, cfg):
+    change_handle = win32file.FindFirstChangeNotification (
+                      self.args.result_dir,
+                      0,
+                      win32con.FILE_NOTIFY_CHANGE_LAST_WRITE)
+    #write to a directory that the photoshop plugin is listening to
+    f = open(self.args.plugin_dir + '/tilesize.txt','w')
+    # TESTING - fix tile size
+    # f.write(str('80 3232'))
+    f.write(str(cfg['horizontal_tile_size'] * 16) + ' ' + str(cfg['vertical_tile_size'] * 16))
+    f.close()
+    #wait for a response
+    try:
+      while 1:
+        result = win32event.WaitForSingleObject(change_handle, int(self.args.limit * 1000)) # TIMEOUT HERE
+        if result == win32con.WAIT_OBJECT_0:
+          f = open(self.args.result_dir + '/result.txt','r')
+          line =  f.readline()
+          f.close()
+          if line:
+            result = float(line)
+            print "Took:" 
+            print result
+            break
+          else:
+            win32file.FindNextChangeNotification(change_handle)
+        else:
+          # it didn't work. Kill restart photoshop, return None.
+          self.kill_photoshop()
+          self.start_photoshop()
+          return None
+    finally:
+      win32file.FindCloseChangeNotification(change_handle)
 
-  def build_dll(self, schedule):
+    return result
+
+  def build_dll(self, source):
+    #remove existing files
+    try:
+      os.remove(self.args.tmp_dir+"/filter.dll")
+      os.remove("halide_out.o")
+      os.remove(self.args.tmp_dir+"/gen.exe")
+    except:
+      pass
+    # print "HALIDE SOURCE:"
+    # print source
     cmd = ''
-    with tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide',
-                                     dir=self.args.tmp_dir) as cppfile:
-      cppfile.write(source)
-      cppfile.flush()
-      
-      #TODO
-      cmd = self.args.compile_command.format(cpp=cppfile.name, args=self.args)
-      cmd += ' ' + extra_args
-      compile_result = self.call_program(cmd, limit=self.args.limit,
-                                         memory_limit=self.args.memory_limit)
-      if compile_result['returncode'] != 0:
-        log.error('compile failed: %s', compile_result)
-        return None
+    cppfile = tempfile.NamedTemporaryFile(suffix='.cpp', prefix='halide',
+                                     dir=self.args.tmp_dir, delete=False)
+    cppfile.write(source)
+    cppfile.flush()
+    cppfile.close()
+    cmd = self.args.compile_command.format(cpp=cppfile.name, args=self.args)
+
+    # print "COMPILE COMMAND:"
+    # print cmd
+
+    compile_result = self.call_program(cmd, limit=self.args.limit,
+                                       memory_limit=self.args.memory_limit)
+    if compile_result['returncode'] != 0:
+
+      log.error('compile failed: %s', compile_result)
+      try:
+        os.remove(os.path.splitext(os.path.basename(cppfile.name))[0]+".obj")
+        os.remove(cppfile.name)
+      except:
+        pass
+      return False
+
+    try:
+      os.remove(os.path.splitext(os.path.basename(cppfile.name))[0]+".obj")
+      os.remove(cppfile.name)
+    except:
+      pass
+    return True
 
   def run_cfg(self, cfg, limit=0):
     try:
@@ -402,6 +561,8 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     """called at the end of tuning"""
     print 'Final Configuration:'
     print self.cfg_to_schedule(configuration.data)
+    print 'Tilesize: ' + str(configuration.data['horizontal_tile_size'] * 16) + ' px , ' + str(configuration.data['vertical_tile_size'] * 16) + ' px'
+    self.kill_photoshop()
 
   def debug_log_schedule(self, filename, source):
     open(filename, 'w').write(source)
@@ -576,12 +737,16 @@ def random_test(args):
   opentuner.tuningrunmain.init_logging()
   m = HalideTuner(args)
   cfg = m.manipulator().random()
+  print 'Configuration:'
   pprint(cfg)
   print
+  # return #TODO remove, testing
   schedule = m.cfg_to_schedule(cfg)
-  print schedule
-  print
   print 'Schedule', m.run_schedule(schedule, cfg)
+  print 'Halide Schedule:'
+  print  schedule
+  print 'Tilesize: ' + str(cfg['horizontal_tile_size'] * 16) + ' px , ' + str(cfg['vertical_tile_size'] * 16) + ' px'
+  m.kill_photoshop()
 
 
 def random_source(args):

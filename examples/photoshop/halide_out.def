@@ -1,0 +1,3 @@
+LIBRARY   filter
+EXPORTS
+   halide_out
