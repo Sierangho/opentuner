@@ -68,7 +68,7 @@ class PetaBricksInterface(MeasurementInterface):
         r[k] = v
 
     for name, choices in self.choice_sites.items():
-      param = self.manipulator.parameters_dict(cfg)['.' + name]
+      param = self._manipulator.parameters_dict(cfg)['.' + name]
       lvl = 0
       for cutoff, choice in param.selector_iter(cfg):
         lvl += 1
@@ -165,7 +165,7 @@ class PetaBricksInterface(MeasurementInterface):
         SelectorParameter('.' + name, range(choices + 1),
                           upper_limit / choices))
 
-    self.manipulator = manipulator
+    self._manipulator = manipulator
     return manipulator
 
   def test_config(self):
