@@ -2,9 +2,11 @@
 import argparse
 import copy
 import inspect
+import json
 import logging
 import math
 import os
+import requests
 import socket
 import sys
 import time
@@ -27,6 +29,8 @@ argparser.add_argument('--database',
                              "http://docs.sqlalchemy.org/en/rel_0_8/core/engines.html#database-urls"))
 argparser.add_argument('--print-params','-pp',action='store_true',
                        help='show parameters of the configuration being tuned')
+
+argparser.add_argument('--upload-results', action='store_true', help='upload tuning results')
 
 
 class CleanStop(Exception):
@@ -98,8 +102,8 @@ class TuningRunMain(object):
     if args.print_params:
       cfg = manipulator.seed_config()
       d = manipulator.parameters_dict(cfg)
-      params_dict ={} 
-      for k in d: 
+      params_dict ={}
+      for k in d:
         cls = d[k].__class__.__name__
         p = (k, d[k].search_space_size())
         if cls in params_dict:
@@ -134,6 +138,10 @@ class TuningRunMain(object):
 
     self.engine, self.Session = resultsdb.connect(args.database)
     self.session = self.Session()
+    if args.upload_results:
+      print "uploading results"
+      self.upload_results()
+      sys.exit(0)
     self.tuning_run = None
     self.search_driver_cls = search_driver
     self.measurement_driver_cls = measurement_driver
@@ -213,6 +221,122 @@ class TuningRunMain(object):
     """called by search_driver to wait for results"""
     #single process version:
     self.measurement_driver.process_all()
+
+  def upload_results(self):
+    url = 'http://localhost:8000/tuning_runs/upload/'
+    # url = 'http://www.opentuner.org/tuning_runs/upload/'
+    # gather tuning runs into payload
+    q = (self.session.query(resultsdb.models.TuningRun)
+          .filter_by(state='COMPLETE')
+          .order_by('start_date'))
+    # TODO add a limit on which results to submit if in args
+    print "submitting {} results".format(q.count())
+    counter = 0
+    for tr in q:
+      counter += 1
+      if counter % 100 == 0:
+        print "submitted {} results".format(counter)
+      try:
+        # collect tuning run data
+        data = self.get_tuning_run_data(tr)
+        data.update(self.get_technique_info(tr))
+        data.update(self.get_performance_info(tr))
+      except:
+        print "error submitting tuning run {}".format(tr.id)
+        continue
+
+      r = requests.post(url, data=json.dumps(data))
+      if r.status_code is not 200:
+        print "Error uploading results. Status code {}: {}".format(r.status_code, r.text)
+        print r.text
+        break
+    print "Finished uploading results"
+
+  def get_tuning_run_data(self, tr):
+    pv = tr.program_version
+    p = pv.program
+    out = {
+        'uuid': tr.uuid,
+        'start_date': tr.start_date.strftime("%Y-%m-%d %H:%M:%S.%f %z"),
+        'program': {
+          'project': p.project,
+          'name': p.name,
+          'version': pv.version,
+          'objective': tr.objective.__class__.__name__,
+        },
+        'representation': {
+          'parameter_info': pv.parameter_info,
+          'name': '', # human readable name for the representation. Currently unused.
+        },
+
+      }
+    return out
+
+  def get_technique_info(self, tr):
+    # extend data with 'bandit_technique' if bandit used
+    q = (self.session.query(resultsdb.models.BanditInfo).filter_by(tuning_run_id=tr.id))
+    bi = q.first()
+    if bi is None:
+      # TODO get metatechnique name if there was one used and handle submitting non-bandit
+      print "SKIPPING BECAUSE NO BANDIT IN TUNING RUN {}".format(tr.id)
+      # print tr.args
+      raise Exception("unhandled")
+    else:
+      q = (self.session.query(resultsdb.models.BanditSubTechnique).filter_by(bandit_info_id=bi.id))
+      bandit_sub_techniques = [t.name for t in q]
+
+      out = {
+        'bandit_technique': {
+            'name': 'AUCBanditMetaTechnique', #TODO change this once field gets added to model
+            'c': bi.c,
+            'window': bi.window,
+            'subtechnique_count': len(bandit_sub_techniques),
+          },
+        'bandit_sub_techniques': bandit_sub_techniques,
+        }
+      return out
+
+  def get_performance_info(self, tr):
+    start = tr.start_date
+    q = (self.session.query(resultsdb.models.DesiredResult)
+          .filter_by(tuning_run_id=tr.id)
+          .filter_by(state='COMPLETE')
+          .order_by('request_date'))
+    bandit_performances = []
+    technique_performance = {}
+    total_num_bests = 0
+    total_num_cfgs = 0
+    # iterate through adding info
+    drs = q.all()
+    for dr in drs:
+      total_num_cfgs += 1
+      if dr.requestor not in technique_performance:
+        technique_performance[dr.requestor] = {'num_cfgs':0, 'num_bests':0}
+      technique_performance[dr.requestor]['num_cfgs'] += 1
+      if dr.result.was_new_best:
+        technique_performance[dr.requestor]['num_bests'] += 1
+        total_num_bests +=1
+      # output performance data at regular intervals
+      if total_num_cfgs % 50 == 0:
+        bandit_performance = {
+            'total_num_cfgs': total_num_cfgs,
+            'total_num_bests': total_num_bests,
+            'seconds_elapsed': int((dr.request_date - start).total_seconds()),
+            'technique_performances': copy.deepcopy(technique_performance),
+          }
+        bandit_performances.append(bandit_performance)
+    # add an entry with values at the end of the tuning run.
+    bandit_performances.append({
+        'total_num_cfgs': total_num_cfgs,
+        'total_num_bests': total_num_bests,
+        'seconds_elapsed': -1, # mark that this is performance at the end of the tuning
+        'technique_performances': copy.deepcopy(technique_performance),
+      })
+
+
+    return {'bandit_performances':bandit_performances}
+
+
 
 
 def main(interface, args, *pargs, **kwargs):

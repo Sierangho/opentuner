@@ -299,6 +299,7 @@ Index('ix_desired_result_custom2', DesiredResult.tuning_run_id,
 
 # track bandit meta-technique information if a bandit meta-technique is used for a tuning run.
 class BanditInfo(Base):
+  #TODO add a name column?
   tuning_run_id = Column(ForeignKey(TuningRun.id))
   tuning_run = relationship(TuningRun, backref='bandit_info')
   # the bandit exploration/exploitation tradeoff
