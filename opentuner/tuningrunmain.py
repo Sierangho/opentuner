@@ -257,7 +257,7 @@ class TuningRunMain(object):
     p = pv.program
     out = {
         'uuid': tr.uuid,
-        'start_date': tr.start_date.strftime("%Y-%m-%d %H:%M:%S.%f %z"),
+        'start_date': tr.start_date.strftime("%Y-%m-%d %H:%M:%S.%f"),
         'program': {
           'project': p.project,
           'name': p.name,

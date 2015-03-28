@@ -26,7 +26,6 @@ def upload(request):
   if request.method == 'POST':
     try:
       data = json.loads(request.body)
-      print data
       # create database entries.
       with transaction.atomic():
         if not has_tuning_run(data['uuid']):
@@ -58,7 +57,7 @@ def add_run(data):
   techniques = {}
   for sub_technique in data['bandit_sub_techniques']:
     techniques[sub_technique] = models.Technique.get(sub_technique)
-  start_date = datetime.datetime.strptime(data['start_date'],"%Y-%m-%d %H:%M:%S.%f %z")
+  start_date = datetime.datetime.strptime(data['start_date'],"%Y-%m-%d %H:%M:%S.%f")
   # create tuning run
   tr = models.TuningRun(uuid=data['uuid'], representation=representation, bandit_technique=bandit, start_date=start_date, user=user)
   tr.save()
