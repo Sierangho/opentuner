@@ -223,6 +223,11 @@ class TuningRunMain(object):
     self.measurement_driver.process_all()
 
   def upload_results(self):
+    def submit_batch(b):
+      r = requests.post(url, data=json.dumps(b))
+      if r.status_code is not 200:
+        print "Error uploading results. Status code {}: {}".format(r.status_code, r.text)
+
     url = 'http://localhost:8000/tuning_runs/upload/'
     # url = 'http://www.opentuner.org/tuning_runs/upload/'
     # gather tuning runs into payload
@@ -232,25 +237,30 @@ class TuningRunMain(object):
     # TODO add a limit on which results to submit if in args
     print "submitting {} results".format(q.count())
     counter = 0
+    batch = []
     for tr in q:
       counter += 1
-      if counter % 100 == 0:
-        print "submitted {} results".format(counter)
       try:
         # collect tuning run data
         data = self.get_tuning_run_data(tr)
         data.update(self.get_technique_info(tr))
         data.update(self.get_performance_info(tr))
+        batch.append(data)
       except:
         print "error submitting tuning run {}".format(tr.id)
         continue
 
-      r = requests.post(url, data=json.dumps(data))
-      if r.status_code is not 200:
-        print "Error uploading results. Status code {}: {}".format(r.status_code, r.text)
-        print r.text
-        break
+      if counter % 100 == 0:
+        submit_batch(batch)
+        batch = []
+        print "submitted {} results".format(counter)
+
+    #submit remaining
+    if not counter % 100 == 0:
+      submit_batch(batch)
+
     print "Finished uploading results"
+
 
   def get_tuning_run_data(self, tr):
     pv = tr.program_version

@@ -25,15 +25,16 @@ def upload(request):
   print "hit upload_runs"
   if request.method == 'POST':
     try:
-      data = json.loads(request.body)
-      # create database entries.
-      with transaction.atomic():
-        if not has_tuning_run(data['uuid']):
-          add_run(data)
-        else:
-          print '-----------------------------------'
-          print " already did this tuning_run "
-          print '-----------------------------------'
+      batch_data = json.loads(request.body)
+      for data in batch_data:
+        # create database entries.
+        with transaction.atomic():
+          if not has_tuning_run(data['uuid']):
+            add_run(data)
+          else:
+            print '-----------------------------------'
+            print " already did this tuning_run "
+            print '-----------------------------------'
 
     except Exception as e:
       print "invalid format"
