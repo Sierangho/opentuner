@@ -578,8 +578,10 @@ class NumericParameter(PrimitiveParameter):
     return self.min_value
 
   def set_value(self, config, value):
-    assert value >= self.min_value
-    assert value <= self.max_value
+    #TODO don't bug out when setting invalid values (makes op3_diff/add useless)
+    # assert value >= self.min_value
+    # assert value <= self.max_value
+    value = max( min(value, self.max_value), self.min_value)
     self._set(config, value)
 
   def get_value(self, config):
