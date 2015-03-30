@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.core.exceptions import MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 import json
@@ -13,11 +13,77 @@ from tuning_runs import models
 def index(request):
   return HttpResponse("Hello, world. This is the index for tuning_runs")
 
-# get info about tuning_runs
+def update_ranks(request, num):
+  rep_id = int(num)
+  try:
+    representation = models.Representation.objects.get(id=rep_id)
+  except ObjectDoesNotExist:
+    return HttpResponse("representation does not exist")
 
-def add_runs(request, name):
-  response = "Here's the url to hit to add runs with name %s"
-  return HttpResponse(response % name)
+  s = "updating technique rankings for " + representation.program.project + "-" + representation.program.name
+
+  response = [s]
+  response.append(representation.parameter_info)
+
+  q = get_technique_performances(representation=representation)
+  num_runs = len(q.distinct('tuning_run'))
+  response.append("aggregated over " + str(num_runs) + " runs")
+
+  technique_scores = {}
+  for t in q:
+    name = t.technique.name
+    if not name in technique_scores:
+      technique_scores[name] = {'num_cfgs': 0, 'num_bests': 0, 'num_runs': 0}
+    technique_scores[name]['num_runs'] = technique_scores[name]['num_runs'] + 1
+    technique_scores[name]['num_cfgs'] = technique_scores[name]['num_cfgs'] + t.num_cfgs
+    technique_scores[name]['num_bests'] = technique_scores[name]['num_bests'] + t.num_bests
+
+  for name in technique_scores:
+    technique_scores[name]['score'] = technique_scores[name]['num_bests'] / (1.0*technique_scores[name]['num_cfgs'])
+
+  sorted_x = sorted(technique_scores.items(), reverse=True, key=lambda x: x[1]['score'])
+  for x in sorted_x:
+    response.append(str(x))
+
+  return HttpResponse("<html><body><p>%s</p></body></html>" % '</p><p>'.join(response))
+
+
+def score_techniques(technique, representation, stage):
+  """
+  aggregate technique performances related to a bandit performance
+  technique = which technique
+  representation = which representation
+  stage = which stage of tuning (#cfg cutoff)
+  """
+  pass
+
+def get_bandit_performances(stage=None, representation=None):
+  """
+  Get query set of bandit performances associated with a representation at a specified stage of tuning
+
+  :param stage: BanditPerformance will have at least this number of cfgs tested. a value of None gets performances from the end of tuning.
+  :param representation: which representation to consider. A value of None considers all representations
+  :returns: query set
+  """
+  pass
+
+def get_technique_performances(stage=None, representation=None):
+  """
+  Get query set of technique performances associated with a representation at a specified stage of tuning
+
+  :param stage: Associated BanditPerformance will have at least this number of cfgs tested. a value of None gets performances from the end of tuning.
+  :param representation: which representation to consider. A value of None considers all representations
+  :returns: query set
+  """
+  q = models.TechniquePerformance.objects.all()
+  if representation is not None:
+    q = q.filter(bandit_performance__tuning_run__representation=representation)
+  if stage is None:
+    q = q.filter(bandit_performance__seconds_elapsed=-1)
+  else:
+    #TODO deal with stage
+    q = q.filter(bandit_performances__seconds_elapsed=-1)
+  return q
 
 # take post data and add to db. expects info to be stored under 'data'
 @csrf_exempt
