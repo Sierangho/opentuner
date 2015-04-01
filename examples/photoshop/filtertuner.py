@@ -193,7 +193,7 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
 
       )
     f.close()
-    return #TODO remove testing
+    # return #TODO remove testing
     self.kill_photoshop()
     self.start_photoshop()
 
