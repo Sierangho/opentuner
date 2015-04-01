@@ -54,6 +54,9 @@ COMPILE_CMD = '"{args.vcvarsall}" &' # load microsoft visual c compiler
 COMPILE_CMD += 'cl "{cpp}" -I "{args.halide_dir}" -Fe"{args.tmp_dir}/gen" -link "{args.halide_dir}/halide.lib" &' # compile halide
 COMPILE_CMD += '"{args.tmp_dir}/gen.exe" &' #create halide files
 COMPILE_CMD += 'link -out:{args.tmp_dir}/filter.dll -dll -def:"halide_out.def" "halide_out.o" msvcrt.lib' #create dll
+# gpu cmds
+# COMPILE_CMD += ' "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v6.5/lib/Win32/cuda.lib"' 
+# COMPILE_CMD += ' "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v6.5/lib/Win32/OpenCL.lib"' 
 
 log = logging.getLogger('halide')
 
@@ -198,7 +201,7 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
 
   def start_photoshop(self):
     subprocess.Popen(self.args.photoshop_dir+'/photoshop.exe')
-    time.sleep(10) #wait for photoshop to start up and trial notification to go away
+    time.sleep(15) #wait for photoshop to start up and trial notification to go away
 
     os.startfile('start_plugin.jsx')
     time.sleep(1)
@@ -400,7 +403,7 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
         at_func, at_idx = compute_at[name]
         try:
           at_var = var_name_order[at_func][-at_idx]
-          print >> o, '.compute_at(Halide::Func(funcs["{0}"]), {1})'.format(at_func, at_var)
+          print >> o, '.compute_at({0}, {1})'.format(at_func, at_var)
           if not self.args.enable_store_at:
             pass  # disabled
           elif store_at[name] is None:
@@ -408,7 +411,7 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
           elif store_at[name] != compute_at[name]:
             at_func, at_idx = store_at[name]
             at_var = var_name_order[at_func][-at_idx]
-            print >> o, '.store_at(Halide::Func(funcs["{0}"]), {1})'.format(at_func, at_var)
+            print >> o, '.store_at({0}, {1})'.format(at_func, at_var)
         except IndexError:
           # this is expected when at_idx is too large
           # TODO: implement a cleaner fix
@@ -459,8 +462,10 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     Wait for response.
     """
     print "new schedule"
+    #print schedule
+    #print "=========================="
     if self.build_dll(self.schedule_to_source(schedule)): 
-      return # TESTING - generate dll only
+      # return # TODO testing build_dll only
       return self.notify_photoshop(cfg)
     #failed to build
     return None
@@ -563,6 +568,10 @@ class HalideTuner(opentuner.measurement.MeasurementInterface):
     print self.cfg_to_schedule(configuration.data)
     print 'Tilesize: ' + str(configuration.data['horizontal_tile_size'] * 16) + ' px , ' + str(configuration.data['vertical_tile_size'] * 16) + ' px'
     self.kill_photoshop()
+    
+    f = open(self.args.plugin_dir + '/finalSchedule.txt','w')
+    f.write("Final Configuration:\n" + self.cfg_to_schedule(configuration.data) + "\n Tilesize: " + str(configuration.data['horizontal_tile_size'] * 16) + ' px , ' + str(configuration.data['vertical_tile_size'] * 16) + ' px')
+    f.close()
 
   def debug_log_schedule(self, filename, source):
     open(filename, 'w').write(source)
@@ -746,6 +755,7 @@ def random_test(args):
   print 'Halide Schedule:'
   print  schedule
   print 'Tilesize: ' + str(cfg['horizontal_tile_size'] * 16) + ' px , ' + str(cfg['vertical_tile_size'] * 16) + ' px'
+
   m.kill_photoshop()
 
 
