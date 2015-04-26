@@ -11,7 +11,7 @@ import socket
 import sys
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from opentuner import resultsdb
 from opentuner.search.driver import SearchDriver
@@ -30,7 +30,7 @@ argparser.add_argument('--database',
 argparser.add_argument('--print-params','-pp',action='store_true',
                        help='show parameters of the configuration being tuned')
 
-argparser.add_argument('--upload-results', action='store_true', help='upload tuning results')
+argparser.add_argument('--upload-results', type='int', default=0, help='upload tuning results from the past x days. -1 for all days')
 
 
 class CleanStop(Exception):
@@ -138,9 +138,9 @@ class TuningRunMain(object):
 
     self.engine, self.Session = resultsdb.connect(args.database)
     self.session = self.Session()
-    if args.upload_results:
+    if args.upload_results != 0:
       print "uploading results"
-      self.upload_results()
+      self.upload_results(args.upload_results)
       sys.exit(0)
     self.tuning_run = None
     self.search_driver_cls = search_driver
@@ -222,18 +222,22 @@ class TuningRunMain(object):
     #single process version:
     self.measurement_driver.process_all()
 
-  def upload_results(self):
+  def upload_results(self, num_days):
     def submit_batch(b):
       r = requests.post(url, data=json.dumps(b))
       if r.status_code is not 200:
         print "Error uploading results. Status code {}: {}".format(r.status_code, r.text)
 
     url = 'http://localhost:8000/tuning_runs/upload/'
+    # url = 'http://128.52.171.76/tuning_runs/upload/'
     # url = 'http://www.opentuner.org/tuning_runs/upload/'
     # gather tuning runs into payload
+
     q = (self.session.query(resultsdb.models.TuningRun)
           .filter_by(state='COMPLETE')
           .order_by('start_date'))
+    if num_days > 0:
+      q = q.filter(resultsdb.models.TuningRun.start_date > datetime.utcnow() - timedelta(days=num_days))
     # TODO add a limit on which results to submit if in args
     print "submitting {} results".format(q.count())
     counter = 0
