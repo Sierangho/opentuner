@@ -68,6 +68,7 @@ class SearchTechnique(SearchPlugin, SearchTechniqueBase):
 
   def __init__(self, *pargs, **kwargs):
     super(SearchTechnique, self).__init__(*pargs, **kwargs)
+    #if not name in kwargs - use default generated name
     self.driver = None
     self.manipulator = None
     self.objective = None

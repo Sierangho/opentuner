@@ -188,6 +188,8 @@ class ConfigurationManipulator(ConfigurationManipulatorBase):
       """
       recursively output information about a parameter and its subparameters in a json format:
 
+      #TODO - Make this actually json so it can be parsed more easily
+
       [parameter_name, {subparam_info:count,subparam_info:count,...}]
       or if no subparams
       [parameter_name,{}]
