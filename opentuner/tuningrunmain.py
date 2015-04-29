@@ -30,7 +30,7 @@ argparser.add_argument('--database',
 argparser.add_argument('--print-params','-pp',action='store_true',
                        help='show parameters of the configuration being tuned')
 
-argparser.add_argument('--upload-results', type='int', default=0, help='upload tuning results from the past x days. -1 for all days')
+argparser.add_argument('--upload-results', type=int, default=0, help='upload tuning results from the past x days. -1 for all days')
 
 
 class CleanStop(Exception):
@@ -301,7 +301,7 @@ class TuningRunMain(object):
 
       out = {
         'bandit_technique': {
-            'name': 'AUCBanditMetaTechnique', #TODO change this once field gets added to model
+            'name': bi.name,
             'c': bi.c,
             'window': bi.window,
             'subtechnique_count': len(bandit_sub_techniques),

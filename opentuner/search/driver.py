@@ -73,6 +73,7 @@ class SearchDriver(DriverBase):
     if isinstance(self.root_technique, AUCBanditMetaTechnique):
       self.session.flush()
       info = BanditInfo(tuning_run=self.tuning_run,
+                        name=self.root_technique.__class__.__name__,
                         c=self.root_technique.bandit.C,
                         window=self.root_technique.bandit.window,)
       self.session.add(info)
