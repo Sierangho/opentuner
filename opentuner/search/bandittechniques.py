@@ -267,8 +267,8 @@ register(AUCBanditMutationTechnique())
 
 register(AUCBanditMetaTechnique([
         differentialevolution.DifferentialEvolutionAlt(),
-        evolutionarytechniques.UniformGreedyMutation(),
-        evolutionarytechniques.NormalGreedyMutation(mutation_rate=0.3),
+        evolutionarytechniques.UniformGreedyMutation(name='UniformGreedyMutation10'),
+        evolutionarytechniques.NormalGreedyMutation(name='NormalGreedyMutation20', mutation_rate=0.2),
         simplextechniques.RandomNelderMead(),
       ], name = "AUCBanditMetaTechniqueA"))
 register(AUCBanditMetaTechnique([
@@ -307,9 +307,9 @@ register(AUCBanditMetaTechnique([
 	PSO(crossover='op3_cross_OX1'),
 	PSO(crossover='op3_cross_PMX'),
 	PSO(crossover='op3_cross_PX'),
-	evolutionarytechniques.GA(crossover='op3_cross_OX1', crossover_rate=0.5),
-	evolutionarytechniques.GA(crossover='op3_cross_PMX', crossover_rate=0.5),
-	evolutionarytechniques.GA(crossover='op3_cross_PX', crossover_rate=0.5),
+	evolutionarytechniques.GA(crossover='op3_cross_OX1', crossover_rate=0.8),
+	evolutionarytechniques.GA(crossover='op3_cross_PMX', crossover_rate=0.8),
+	evolutionarytechniques.GA(crossover='op3_cross_PX', crossover_rate=0.8),
 	differentialevolution.DifferentialEvolutionAlt(),
         globalGA.NormalGreedyMutation( crossover_rate=0.5, crossover_strength=0.2, name='GGA')
 	], name='PSO_GA_DE'))
