@@ -1,7 +1,7 @@
 import unittest
 import opentuner
 import mock
-from opentuner.search.composableevolutionarytechniques import ComposableEvolutionaryTechnique
+from opentuner.search.composableevolutionarytechniques import ComposableEvolutionaryTechnique, GreedyComposableTechnique
 from opentuner.search import manipulator
 
 def faked_random(nums):
@@ -15,6 +15,22 @@ def fake_random(nums):
   while True:
     yield nums[i]
     i = (i+1) % len(nums)
+
+class ReinitializeComposableTechnique(unittest.TestCase):
+  def setUp(self):
+    #list of techniques to look through
+    techniques = GreedyComposableTechnique(name='foo')
+
+  def test_composable(self):
+    name = 'GreedyComposableTechnique;mutation_rate,0.1;must_mutate_count,1 IntegerParameter;op1_nop;[[]] LogIntegerParameter;op1_nop;[[]] PermutationParameter;op3_cross_PX;[[]] SelectorParameter;op1_nop;[[]] SwitchParameter;op1_nop;[[]]'
+    technique = GreedyComposableTechnique.generate_technique_from_name(name)
+    default = technique.get_operator(manipulator.IntegerParameter)
+    self.assertDictEqual(default, {'op_name': 'op1_nop', 'args': (), 'kwargs': {}})
+
+    default = technique.get_operator(manipulator.PermutationParameter)
+    self.assertDictEqual(default, {'op_name': 'op3_cross_PX','args': (),'kwargs': {}})
+
+
 
 class EmptyComposableEvolutionaryTechnique(ComposableEvolutionaryTechnique):
   def __init__(self, *pargs, **kwargs):

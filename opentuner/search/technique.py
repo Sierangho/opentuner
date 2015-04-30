@@ -1,5 +1,6 @@
 import abc
 import argparse
+import copy
 import logging
 import os
 import random
@@ -169,6 +170,38 @@ class SearchTechnique(SearchPlugin, SearchTechniqueBase):
     t.use_default_generated_name()
     return t
 
+  @classmethod
+  def generate_technique_from_name(cls, technique_name, *args, **kwargs):
+    """
+    return a technique instance that would have generated the given technique
+     name, or None if no such instance exists
+    """
+    parts = technique_name.split(';')
+    root_name = parts[0]
+    hparams = parts[1:]
+    if root_name != cls.__name__:
+      return None
+    for hparam in hparams:
+      s = hparam.split(',')
+      # try to evaluate what the value for the hparam
+      try:
+        kwargs[s[0]] = int(s[1])
+        continue
+      except ValueError:
+        pass
+      try:
+        kwargs[s[0]] = float(s[1])
+        continue
+      except ValueError:
+        pass
+      if s[1] == 'False' or s[1] == 'True':
+        kwargs[s[0]] = (s[1] == 'True')
+        continue
+      kwargs[s[0]] = s[1]
+    t = cls(*args, **kwargs)
+    t.use_default_generated_name()
+    return t
+
 class PureRandom(SearchTechnique):
   """
   request configurations completely randomly
@@ -217,7 +250,7 @@ class AsyncProceduralSearchTechnique(SearchTechnique):
     return not self.done
 
 class SequentialSearchTechnique(AsyncProceduralSearchTechnique):
-  def __init__(self, novelty_threshold=50, reset_threshold=500, *pargs, **kwargs):
+  def __init__(self, novelty_threshold=10, reset_threshold=100, *pargs, **kwargs):
     super(SequentialSearchTechnique, self).__init__(*pargs, **kwargs)
     self.pending_tests = []
     self.novelty_threshold = novelty_threshold
@@ -311,6 +344,21 @@ def get_random_generator_technique(generators=None, manipulator=None):
   g, args, kwargs = weighted_choice(generators)
   return g.generate_technique(manipulator, *args, **kwargs)
 
+def get_technique_from_name(technique_name):
+  # first check the registry
+  for t in the_registry:
+    if technique_name == t.name:
+      return copy.deepcopy(t)
+
+  # check generators to try generating
+  for gen_info, weight in the_generator_registry:
+    gt,args,kwargs = gen_info
+    t = gt.generate_technique_from_name(technique_name)
+    if t is not None:
+      return t
+
+  # give up and return None
+  return None
 
 def weighted_choice(choices):
   """ takes in a sequence of (choice, weight) tuples and randomly returns one """

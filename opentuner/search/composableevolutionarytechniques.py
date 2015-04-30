@@ -230,7 +230,7 @@ class ComposableEvolutionaryTechnique(SequentialSearchTechnique):
     """
     if(isinstance(param_type, Parameter)):
       ptype = type(param_type)
-    elif (type(param_type) == str):
+    elif (type(param_type) == str) or (type(param_type) == unicode):
       ptype = reduce(getattr, param_type.split("."), sys.modules[__name__])
     else:
       ptype = param_type;
@@ -356,7 +356,7 @@ class ComposableEvolutionaryTechnique(SequentialSearchTechnique):
     """
     from manipulator import composable_operators
     # randomly select a composable technique to generate
-    t = cls(*args, **kwargs)
+    t = super(ComposableEvolutionaryTechnique, cls).generate_technique(manipulator=None, *args, **kwargs)
     if manipulator is None:
       return t
 
@@ -375,6 +375,35 @@ class ComposableEvolutionaryTechnique(SequentialSearchTechnique):
     t.set_operator_map(operator_map)
     t.use_default_generated_name()
     return t
+
+  @classmethod
+  def generate_technique_from_name(cls, technique_name, *args, **kwargs):
+    """
+    check if technique name is in form
+    classname;hyperparam1,v1;hyperparam2,v2 paramname;opname;[arg1,arg2,[[kwarg1,v1][kwarg2,v2]]] paramname2;opname2;...
+    return the instantiated technique if it is, None if it isn't
+    """
+    parts = technique_name.split(' ')
+    base_name = parts[0]
+    t = super(ComposableEvolutionaryTechnique, cls).generate_technique_from_name(base_name
+      , *args, **kwargs)
+    if t is None:
+      return None
+    ops = parts[1:]
+    operator_map = {}
+
+    for op in ops:
+      subparts = op.split(';')
+      param_type = subparts[0]
+      opname = subparts[1]
+      op_hparams = json.loads(subparts[2])
+      opargs = op_hparams[:-1]
+      opkwargs = dict(op_hparams[-1])
+      cls.add_to_map(operator_map, param_type, opname, *opargs, **opkwargs)
+    t.set_operator_map(operator_map)
+    t.use_default_generated_name()
+    return t
+
 
 
 class RandomThreeParentsComposableTechnique(ComposableEvolutionaryTechnique):
