@@ -271,12 +271,14 @@ class ComposableEvolutionaryTechnique(SequentialSearchTechnique):
       config = self.get_new_config(parents, params)
       yield get_driver_configuration(config)
 
-      population = self.update_population(config, population)
-
       # safety check that population has all been tested
       for p in population:
         if not self.driver.has_results(get_driver_configuration(p.config)):
           yield get_driver_configuration(p.config)
+
+      population = self.update_population(config, population)
+
+
 
   def get_new_config(self, parents, params):
     """
