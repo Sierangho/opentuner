@@ -124,5 +124,11 @@ register(DatabaseAUCBanditMetaTechnique([
       ], name='DB_PSO_GA_DE'))
 
 
+register(DatabaseAUCBanditMetaTechnique([
+        differentialevolution.DifferentialEvolutionAlt(),
+        patternsearch.PatternSearch(),
+        simplextechniques.RandomNelderMead(),
+        PSO(crossover = 'op3_cross_OX3'),
+      ], name = "DBBanditMetaTechniqueD"))
 
 

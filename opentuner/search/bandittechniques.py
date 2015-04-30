@@ -314,3 +314,10 @@ register(AUCBanditMetaTechnique([
         globalGA.NormalGreedyMutation( crossover_rate=0.5, crossover_strength=0.2, name='GGA')
 	], name='PSO_GA_DE'))
 
+register(AUCBanditMetaTechnique([
+        differentialevolution.DifferentialEvolutionAlt(),
+        patternsearch.PatternSearch(),
+        simplextechniques.RandomNelderMead(),
+        PSO(crossover = 'op3_cross_OX3'),
+      ], name = "AUCBanditMetaTechniqueD"))
+
