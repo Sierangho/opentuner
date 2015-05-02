@@ -51,6 +51,7 @@ class DatabaseAUCBanditMetaTechnique(AUCBanditMetaTechnique):
     # url = 'http://localhost:8000/tuning_runs/recommend/'
     url = 'http://128.52.171.76/tuning_runs/recommend/'
     # ping server
+    # TODO also send representation
     r = requests.post(url, data=json.dumps(self.performances))
     if r.status_code is not 200:
       log.warning("failed to update techniques")
@@ -71,6 +72,10 @@ class DatabaseAUCBanditMetaTechnique(AUCBanditMetaTechnique):
           continue
         break
     # initialize the technique
+    if t is None:
+      log.warning("could not update techniques")
+      return
+
     t.set_driver(self.driver)
 
     # find the worst performing technique to swap out

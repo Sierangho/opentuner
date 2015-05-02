@@ -10,6 +10,7 @@ from technique import SequentialSearchTechnique
 from manipulator import *
 from opentuner.search.manipulator import Parameter
 
+log = logging.getLogger(__name__)
 
 class PopulationMember(object):
   """
@@ -231,7 +232,11 @@ class ComposableEvolutionaryTechnique(SequentialSearchTechnique):
     if(isinstance(param_type, Parameter)):
       ptype = type(param_type)
     elif (type(param_type) == str) or (type(param_type) == unicode):
-      ptype = reduce(getattr, param_type.split("."), sys.modules[__name__])
+      try:
+        ptype = reduce(getattr, param_type.split("."), sys.modules[__name__])
+      except AttributeError:
+        log.warning("Error adding to operator map. Unable to instantiate parameter type {}".format(ptype))
+        return
     else:
       ptype = param_type;
 
