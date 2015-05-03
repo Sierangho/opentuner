@@ -76,6 +76,9 @@ class DatabaseAUCBanditMetaTechnique(AUCBanditMetaTechnique):
       log.warning("could not update techniques")
       return
 
+    # technique name may differ if unable to initialize some operators
+    new_technique = t.name
+
     t.set_driver(self.driver)
 
     # find the worst performing technique to swap out
