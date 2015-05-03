@@ -235,7 +235,7 @@ class ComposableEvolutionaryTechnique(SequentialSearchTechnique):
       try:
         ptype = reduce(getattr, param_type.split("."), sys.modules[__name__])
       except AttributeError:
-        log.warning("Error adding to operator map. Unable to instantiate parameter type {}".format(ptype))
+        log.warning("Error adding to operator map. Unable to instantiate parameter type {}".format(param_type))
         return
     else:
       ptype = param_type;
