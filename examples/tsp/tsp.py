@@ -22,9 +22,12 @@ from opentuner.tuningrunmain import TuningRunMain
 parser = argparse.ArgumentParser(parents=opentuner.argparsers())
 parser.add_argument('data', help='distance matrix file')
 
+#TSP benchmarks taken from TSPLIB
+
 class TSP(MeasurementInterface):
     def __init__(self, args):
-        super(TSP, self).__init__(args)
+        # set program name to the which dataset was used
+        super(TSP, self).__init__(args, program_name=args.data)
         data = args.data
         m = open(data).readlines()
         self.distance = [[int(i) for i in l.split()] for l in m]
