@@ -115,7 +115,7 @@ class StatsMain(object):
         e, sm = resultsdb.connect('sqlite:///'+os.path.join(path, f))
         self.dbs.append(sm())
       except:
-        log.error('failed to load database: %s', 
+        log.error('failed to load database: %s',
                   os.path.join(path, f),
                   exc_info=True)
 
@@ -237,18 +237,19 @@ class StatsMain(object):
     for d, label_runs in dir_label_runs.iteritems():
       labels = [k for k,v in label_runs.iteritems()
                 if len(v)>=self.args.min_runs]
+      #error bars at 10 and 90 percent
       self.gnuplot_file(d,
                         "medianperfe",
-                        ['"%s_percentiles.dat" using 1:12:4:18 with errorbars title "%s"' % (l,l) for l in labels])
+                        ['"%s_percentiles.dat" using 1:12:4:20 with errorbars title "%s"' % (l,l) for l in labels])
       self.gnuplot_file(d,
                         "meanperfe",
-                        ['"%s_percentiles.dat" using 1:21:4:18 with errorbars title "%s"' % (l,l) for l in labels])
+                        ['"%s_percentiles.dat" using 1:23:4:20 with errorbars title "%s"' % (l,l) for l in labels])
       self.gnuplot_file(d,
                         "medianperfl",
                         ['"%s_percentiles.dat" using 1:12 with lines title "%s"' % (l,l) for l in labels])
       self.gnuplot_file(d,
                         "meanperfl",
-                        ['"%s_percentiles.dat" using 1:21 with lines title "%s"' % (l,l) for l in labels])
+                        ['"%s_percentiles.dat" using 1:23 with lines title "%s"' % (l,l) for l in labels])
 
     # print
     # print "10% Scores", d
@@ -383,7 +384,10 @@ class StatsMain(object):
       print >>fd, 'set terminal postscript eps enhanced color'
       print >>fd, 'set output "%s"' % (prefix+'.eps')
       print >>fd, 'set ylabel "Execution Time (seconds)"'
-      print >>fd, 'set xlabel "Autotuning Time (seconds)"'
+      if self.args.by_request_count:
+        print >>fd, 'set xlabel "Request Count"'
+      else:
+        print >>fd, 'set xlabel "Autotuning Time (seconds)"'
       print >>fd, 'plot', ',\\\n'.join(plotcmd)
 
     try:
@@ -444,7 +448,7 @@ set ytics 1
       td = (dr.request_date - start_date)
       duration = td.seconds + (td.days * 24 * 3600.0)
       if self.args.by_request_count:
-        quanta = dr.id - first_id
+        quanta = int((dr.id - first_id)/self.args.stats_quanta)
       else:
         quanta = int(duration / self.args.stats_quanta)
       while len(value_by_quanta) <= quanta:
