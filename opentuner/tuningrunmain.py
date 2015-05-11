@@ -254,13 +254,13 @@ class TuningRunMain(object):
         print "error submitting tuning run {}".format(tr.id)
         continue
 
-      if counter % 100 == 0:
+      if counter % 10 == 0:
         submit_batch(batch)
         batch = []
         print "submitted {} results".format(counter)
 
     #submit remaining
-    if not counter % 100 == 0:
+    if not counter % 10 == 0:
       submit_batch(batch)
 
     print "Finished uploading results"

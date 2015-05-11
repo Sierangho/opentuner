@@ -520,8 +520,19 @@ class GreedyComposableTechnique(ComposableEvolutionaryTechnique):
   def update_population(self, config, population):
     # replace the oldest configuration if the new one is better.
     population.sort(key=_.timestamp)
-    if self.lt(config, population[0].config):
-      population[0].config = config
+
+    try:
+      if self.lt(config, population[0].config):
+        population[0].config = config
+    except:
+      print "FUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
+      print "has results for first?"
+      print self.driver.has_results(self.driver.get_configuration(config))
+
+      print " "
+      print "has results for second?"
+      print population[0].config
+      print self.driver.has_results(self.driver.get_configuration(population[0].config))
 
     # mark that oldest configuration is updated
     population[0].touch()
