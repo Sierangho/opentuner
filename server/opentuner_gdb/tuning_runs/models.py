@@ -189,10 +189,18 @@ class BanditSubTechnique(models.Model):
 
 # store sorted technique ranking for a given representation
 class TechniqueRanking(models.Model):
-  representation = models.ForeignKey(Representation) #Primary key?
+  representation = models.ForeignKey(Representation)
+
   # Field to store cached information for ranking techniques. Currently a dict of
   # technique name -> {num_runs, num_cfgs, num_bests, score, avg_score, std_score}
   technique_ranking = models.TextField()
-  # number of cfgs in?
+
+  # number of cfgs into a tuning run the ranking is calculated at
+  # -1 = end of tuning
+
+  # stage = models.IntegerField()
+
+  # class Meta:
+  #   unique_together = ('representation', 'stage')
 
 

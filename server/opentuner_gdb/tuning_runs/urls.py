@@ -15,11 +15,18 @@ urlpatterns = patterns('',
 	url(r'^view_normalized_expanded/(\w+)/$', views.view_normalized, {'lookup':False}),
 	url(r'^view_grouped_expanded/(\w+)/$', views.view_grouped, {'lookup':False}),
 
+	url(r'^view_overlap/(\w+)/$', views.view_technique_overlap),
+
 	url(r'^view_correlations/(\w+)/$', views.view_all),
 
-
+	url(r'^recommend/$', views.recommend_technique),
+	url(r'^test_recommend/$', views.test_recommend),
 
 	url(r'^update_ranks/(\w+)/$', views.update_ranks),
+	url(r'^update_tsp/$', views.update_tsp),
+	url(r'^update_old/$', views.update_old),
+
+
 	#url(r'^update_ranks/$', views.update_all_ranks),
 	url(r'^get_similar/(\w+)/$', views.get_similar),
 	url(r'^see_distances/(\w+)/$', views.see_distances),

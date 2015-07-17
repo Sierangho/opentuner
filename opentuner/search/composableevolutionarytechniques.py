@@ -70,7 +70,7 @@ class ComposableEvolutionaryTechnique(SequentialSearchTechnique):
     Gets the default name for this technique based on its operator map
 
     Name is in the format
-    classname paramname;opname;[arg1,arg2,[[kwarg1,v1][kwarg2,v2]]] paramname2;opname2;...
+    classname paramname;opname;[arg1,arg2,[[kwarg1,v1],[kwarg2,v2]]] paramname2;opname2;...
     """
     # TODO - include technique hyperparameters
     parts = [self.base_name()]
@@ -454,15 +454,7 @@ class RandomThreeParentsComposableTechnique(ComposableEvolutionaryTechnique):
       if self.lt(config, population[0].config):
         population[0].config = config
     except:
-      print "FUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
-      print "has results for first?"
-      print self.driver.has_results(self.driver.get_configuration(config))
-
-      print " "
-      print "has results for second?"
-      print population[0].config
-      print self.driver.has_results(self.driver.get_configuration(population[0].config))
-
+      pass
     # mark that oldest configuration is updated
     population[0].touch()
 
@@ -525,15 +517,7 @@ class GreedyComposableTechnique(ComposableEvolutionaryTechnique):
       if self.lt(config, population[0].config):
         population[0].config = config
     except:
-      print "FUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
-      print "has results for first?"
-      print self.driver.has_results(self.driver.get_configuration(config))
-
-      print " "
-      print "has results for second?"
-      print population[0].config
-      print self.driver.has_results(self.driver.get_configuration(population[0].config))
-
+      pass
     # mark that oldest configuration is updated
     population[0].touch()
 

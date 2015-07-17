@@ -89,7 +89,6 @@ class DatabaseAUCBanditMetaTechnique(AUCBanditMetaTechnique):
     data['problem'] = self.get_problem_info()
     r = requests.post(url, data=json.dumps(data))
     if r.status_code is not 200:
-
       #DEBUG
       # print r.text
       # myfile = open('myfile.html', 'w+')
@@ -113,7 +112,7 @@ class DatabaseAUCBanditMetaTechnique(AUCBanditMetaTechnique):
     worst = keys[0]
     # remove from the bandit
     self.bandit.keys.remove(worst)
-    print "removing technique " + worst
+    log.debug("removing technique %s", worst)
 
   def add_technique(self, technique):
     """
@@ -123,7 +122,7 @@ class DatabaseAUCBanditMetaTechnique(AUCBanditMetaTechnique):
       name -> technique mapping
     """
 
-    print "adding technique " + technique.name
+    log.debug("adding technique %s", technique.name)
     new_technique = technique.name
     self.bandit.keys.append(new_technique)
     if not new_technique in self.bandit.use_counts:
@@ -167,11 +166,8 @@ class DatabaseAUCBanditMetaTechnique(AUCBanditMetaTechnique):
     if t is None:
       log.warning("could not update techniques")
       return
-    print "============================"
-    print "update techniques"
     self.remove_worst_technique()
     self.add_technique(t)
-    print "============================"
 
 
 class DatabaseInitAUCBanditMetaTechnique(DatabaseAUCBanditMetaTechnique):
@@ -193,8 +189,7 @@ class DatabaseInitAUCBanditMetaTechnique(DatabaseAUCBanditMetaTechnique):
     return (self.name_to_technique[k] for k in self.bandit.ordered_keys())
 
   def init_techniques(self):
-    print "======================"
-    print "initializing techniques"
+    log.debug("initializing techniques")
     techniques = []
     recommended = self.get_recommended_techniques(use_performance=False)
     for t_name in recommended:
@@ -205,15 +200,11 @@ class DatabaseInitAUCBanditMetaTechnique(DatabaseAUCBanditMetaTechnique):
         continue
       techniques.append(t)
     if len(techniques) != self.num_techniques:
-      print len(techniques)
-      print self.num_techniques
-      log.warning("Could only initialize {} out of {} initial techniques", 3, 5)
+      log.warning("Could only initialize %d out of %d initial techniques", len(techniques), self.num_techniques)
 
     self.techniques = techniques
     for t in techniques:
       self.add_technique(t)
-
-    print "====================="
 
 
 
